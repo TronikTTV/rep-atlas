@@ -1,11 +1,721 @@
 {
   "version": 3,
-  "updated_at": null,
-  "last_attempt": null,
-  "offers": [],
-  "sources": [],
-  "sync_notes": [
-    "Catalogue reset to remove mismatched imports. Import a specific Yupoo album or category in Sync & Settings."
+  "updated_at": "2026-10-19T22:12:10+00:00",
+  "last_attempt": "2026-10-19T22:12:10+00:00",
+  "offers": [
+    {
+      "id": "husky:huskyreps.x.yupoo.com:215181711",
+      "seller": "Husky",
+      "album_id": "215181711",
+      "url": "https://huskyreps.x.yupoo.com/albums/215181711?uid=1&navSource=custom",
+      "title": "🔥HOT🔥",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "unique:husky:huskyreps.x.yupoo.com:215181711",
+      "image": "",
+      "images": [],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:217129713",
+      "seller": "Husky",
+      "album_id": "217129713",
+      "url": "https://huskyreps.x.yupoo.com/albums/217129713?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 HV0949-011￥255 zip-up coat  HV0959-011￥245 pants  (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:hv0949",
+      "image": "https://photo.yupoo.com/huskyreps/5d8bd98d/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/5d8bd98d/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:217132757",
+      "seller": "Husky",
+      "album_id": "217132757",
+      "url": "https://huskyreps.x.yupoo.com/albums/217132757?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "🔥Husky 1:1🔥",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "unique:husky:huskyreps.x.yupoo.com:217132757",
+      "image": "https://photo.yupoo.com/huskyreps/b622f993/small.png",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/b622f993/small.png"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:218239672",
+      "seller": "Husky",
+      "album_id": "218239672",
+      "url": "https://huskyreps.x.yupoo.com/albums/218239672?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 HV0949-010￥255 zip-up coat HV0959-010￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:hv0949",
+      "image": "https://photo.yupoo.com/huskyreps/3951b88a/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/3951b88a/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:219130782",
+      "seller": "Husky",
+      "album_id": "219130782",
+      "url": "https://huskyreps.x.yupoo.com/albums/219130782?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 HV0949-539￥255 zip-up coat HV0959-539￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:hv0949",
+      "image": "https://photo.yupoo.com/huskyreps/59790c84a7/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/59790c84a7/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:219483560",
+      "seller": "Husky",
+      "album_id": "219483560",
+      "url": "https://huskyreps.x.yupoo.com/albums/219483560?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "￥ 169 FREITAG 🔥F704🔥44121498 (长27CM*宽32CM*高15CM）",
+      "brand": "Husky 1:1",
+      "price_yuan": 169.0,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:other:f70444121498 freitag 宽32cm 长27cm 高15cm",
+      "image": "https://photo.yupoo.com/huskyreps/95c08c80/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/95c08c80/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:219564367",
+      "seller": "Husky",
+      "album_id": "219564367",
+      "url": "https://huskyreps.x.yupoo.com/albums/219564367?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "￥ 169 FREITAG 44121499 (长39CM*宽33CM*高15CM）",
+      "brand": "Husky 1:1",
+      "price_yuan": 169.0,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:other:44121499 freitag 宽33cm 长39cm 高15cm",
+      "image": "https://photo.yupoo.com/huskyreps/ef02151a/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/ef02151a/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:219786665",
+      "seller": "Husky",
+      "album_id": "219786665",
+      "url": "https://huskyreps.x.yupoo.com/albums/219786665?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 HV0949-063￥255 zip-up coat HV0959-063￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:hv0949",
+      "image": "https://photo.yupoo.com/huskyreps/12e3348b/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/12e3348b/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:221007940",
+      "seller": "Husky",
+      "album_id": "221007940",
+      "url": "https://huskyreps.x.yupoo.com/albums/221007940?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2020 CU4489-392￥255zip-up coat CU4495-392￥245pants  (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:cu4489",
+      "image": "https://photo.yupoo.com/huskyreps/87788cad27/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/87788cad27/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:221117315",
+      "seller": "Husky",
+      "album_id": "221117315",
+      "url": "https://huskyreps.x.yupoo.com/albums/221117315?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2020 CU4489-234￥255 zip-up coat CU4495-234￥245 pants  (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:cu4489",
+      "image": "https://photo.yupoo.com/huskyreps/9ce60fbf9e/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/9ce60fbf9e/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:221174266",
+      "seller": "Husky",
+      "album_id": "221174266",
+      "url": "https://huskyreps.x.yupoo.com/albums/221174266?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "🔥husky1:1￥448~ 1996 Retro Nuptse Jacket model 185cm 90kg XL",
+      "brand": "Husky 1:1",
+      "price_yuan": 448.0,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:jacket:185cm 1996 90kg husky1 jacket model nuptse retro xl",
+      "image": "https://photo.yupoo.com/huskyreps/b401384df3/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/b401384df3/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:221174510",
+      "seller": "Husky",
+      "album_id": "221174510",
+      "url": "https://huskyreps.x.yupoo.com/albums/221174510?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "🔥SALE 🔥husky 1:1￥299⬅️￥399 🔥 Women’s Nuptse Short Jacket",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "unique:husky:huskyreps.x.yupoo.com:221174510",
+      "image": "https://photo.yupoo.com/huskyreps/f468d878b7/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/f468d878b7/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:221496252",
+      "seller": "Husky",
+      "album_id": "221496252",
+      "url": "https://huskyreps.x.yupoo.com/albums/221496252?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 HV0949-451￥255 zip-up coat HV0959-451￥245 pants(im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:hv0949",
+      "image": "https://photo.yupoo.com/huskyreps/0768d2ee/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/0768d2ee/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:223266293",
+      "seller": "Husky",
+      "album_id": "223266293",
+      "url": "https://huskyreps.x.yupoo.com/albums/223266293?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2020 CU4489-469￥255 zip-up coat CU4495-469￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:cu4489",
+      "image": "https://photo.yupoo.com/huskyreps/3496bcd131/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/3496bcd131/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:223266346",
+      "seller": "Husky",
+      "album_id": "223266346",
+      "url": "https://huskyreps.x.yupoo.com/albums/223266346?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2023 FB7921-063￥255 zip-up coat FB8002-063￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:fb7921",
+      "image": "https://photo.yupoo.com/huskyreps/9c9518f4/small.jpeg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/9c9518f4/small.jpeg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:223502311",
+      "seller": "Husky",
+      "album_id": "223502311",
+      "url": "https://huskyreps.x.yupoo.com/albums/223502311?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2020 CU4489-480￥255 zip-up coat CU4495-480￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:cu4489",
+      "image": "https://photo.yupoo.com/huskyreps/6653dcafe4/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/6653dcafe4/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:223627530",
+      "seller": "Husky",
+      "album_id": "223627530",
+      "url": "https://huskyreps.x.yupoo.com/albums/223627530?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2023 FB7921-010￥255 zip-up coat FB8002-010￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:fb7921",
+      "image": "https://photo.yupoo.com/huskyreps/96fd3f43/small.jpeg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/96fd3f43/small.jpeg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:224253811",
+      "seller": "Husky",
+      "album_id": "224253811",
+      "url": "https://huskyreps.x.yupoo.com/albums/224253811?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 HV0949-032￥255 zip-up coat HV0959-032￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:hv0949",
+      "image": "https://photo.yupoo.com/huskyreps/cfa2bd9635/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/cfa2bd9635/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:224253822",
+      "seller": "Husky",
+      "album_id": "224253822",
+      "url": "https://huskyreps.x.yupoo.com/albums/224253822?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2020 DV0537-437￥255zip-up coat DV0538-437￥245pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:dv0537",
+      "image": "https://photo.yupoo.com/huskyreps/45f04aa4c6/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/45f04aa4c6/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:224862883",
+      "seller": "Husky",
+      "album_id": "224862883",
+      "url": "https://huskyreps.x.yupoo.com/albums/224862883?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2020 DV0537-010￥255zip-up coat DV0538-070￥245pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:dv0537",
+      "image": "https://photo.yupoo.com/huskyreps/648c9f41af/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/648c9f41af/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:224862908",
+      "seller": "Husky",
+      "album_id": "224862908",
+      "url": "https://huskyreps.x.yupoo.com/albums/224862908?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2020 DV0537-011￥255zip-up coat DV0538-010￥245pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:dv0537",
+      "image": "https://photo.yupoo.com/huskyreps/3d249ee77e/small.png",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/3d249ee77e/small.png"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:224923824",
+      "seller": "Husky",
+      "album_id": "224923824",
+      "url": "https://huskyreps.x.yupoo.com/albums/224923824?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2023 FB7921-064￥255 zip-up coat FB8002-064￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:fb7921",
+      "image": "https://photo.yupoo.com/huskyreps/fcf3cb0b/small.jpeg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/fcf3cb0b/small.jpeg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:225774672",
+      "seller": "Husky",
+      "album_id": "225774672",
+      "url": "https://huskyreps.x.yupoo.com/albums/225774672?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2020 CU4489-410￥255 zip-up coat CU4495-410￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:cu4489",
+      "image": "https://photo.yupoo.com/huskyreps/e74d1db15a/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/e74d1db15a/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:230060080",
+      "seller": "Husky",
+      "album_id": "230060080",
+      "url": "https://huskyreps.x.yupoo.com/albums/230060080?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2023 FB7921-013￥255 zip-up coat FB8002-013￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:fb7921",
+      "image": "https://photo.yupoo.com/huskyreps/841fe07a28/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/841fe07a28/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:230060100",
+      "seller": "Husky",
+      "album_id": "230060100",
+      "url": "https://huskyreps.x.yupoo.com/albums/230060100?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 HV0949-015￥255 zip-up coat HV0959-015￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:hv0949",
+      "image": "https://photo.yupoo.com/huskyreps/d5477ef9/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/d5477ef9/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:230565774",
+      "seller": "Husky",
+      "album_id": "230565774",
+      "url": "https://huskyreps.x.yupoo.com/albums/230565774?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 HV0949-061￥255 zip-up coat HV0959-061￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:hv0949",
+      "image": "https://photo.yupoo.com/huskyreps/538440b200/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/538440b200/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:230567738",
+      "seller": "Husky",
+      "album_id": "230567738",
+      "url": "https://huskyreps.x.yupoo.com/albums/230567738?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2023 FB7921-060￥255 zip-up coat ￥245 pants(im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:fb7921",
+      "image": "https://photo.yupoo.com/huskyreps/3fc2387448/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/3fc2387448/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:231184331",
+      "seller": "Husky",
+      "album_id": "231184331",
+      "url": "https://huskyreps.x.yupoo.com/albums/231184331?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "￥169 FREITAG 88040456 (长39CM*宽33CM*高15CM）",
+      "brand": "Husky 1:1",
+      "price_yuan": 169.0,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:other:88040456 freitag 宽33cm 长39cm 高15cm",
+      "image": "https://photo.yupoo.com/huskyreps/86f2f447/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/86f2f447/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:235681624",
+      "seller": "Husky",
+      "album_id": "235681624",
+      "url": "https://huskyreps.x.yupoo.com/albums/235681624?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 ￥255 TOP ￥245 pants  (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:pants:180cm 68kg im iwear pants tf top",
+      "image": "https://photo.yupoo.com/huskyreps/6b705883cb/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/6b705883cb/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:236017985",
+      "seller": "Husky",
+      "album_id": "236017985",
+      "url": "https://huskyreps.x.yupoo.com/albums/236017985?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 ￥255 TOP ￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:pants:180cm 68kg im iwear pants tf top",
+      "image": "https://photo.yupoo.com/huskyreps/da084bc4fd/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/da084bc4fd/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:238041059",
+      "seller": "Husky",
+      "album_id": "238041059",
+      "url": "https://huskyreps.x.yupoo.com/albums/238041059?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 IH4302-010￥265 zip-up coat IH4303-010￥255 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:ih4302",
+      "image": "https://photo.yupoo.com/huskyreps/2adb89472f/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/2adb89472f/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:238477326",
+      "seller": "Husky",
+      "album_id": "238477326",
+      "url": "https://huskyreps.x.yupoo.com/albums/238477326?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "￥ 339 FREITAG 🔥F41 🔥(长30CM*宽18CM*高9CM）44121497",
+      "brand": "Husky 1:1",
+      "price_yuan": 339.0,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:other:44121497 f41 freitag 宽18cm 长30cm 高9cm",
+      "image": "https://photo.yupoo.com/huskyreps/153d5d03b1/small.jpeg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/153d5d03b1/small.jpeg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:238563631",
+      "seller": "Husky",
+      "album_id": "238563631",
+      "url": "https://huskyreps.x.yupoo.com/albums/238563631?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "🔥husky1:1￥89~🔥Sup*MM6 Dollar T-SHIRT  (im 170CM 75KG iwear size M in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": 89.0,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:t shirt:170cm 75kg dollar husky1 im iwear mm6 shirt sup",
+      "image": "https://photo.yupoo.com/huskyreps/a605df647d/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/a605df647d/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:238848276",
+      "seller": "Husky",
+      "album_id": "238848276",
+      "url": "https://huskyreps.x.yupoo.com/albums/238848276?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 IH4302-011￥265 zip-up coat IH4303-011￥255 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:ih4302",
+      "image": "https://photo.yupoo.com/huskyreps/d211d3425e/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/d211d3425e/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:239743081",
+      "seller": "Husky",
+      "album_id": "239743081",
+      "url": "https://huskyreps.x.yupoo.com/albums/239743081?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "2025 TF Shorts 🔥husky 1:1￥199🔥 (model180CM 68KG S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": 199.0,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:shorts:68kg model180cm shorts tf",
+      "image": "https://photo.yupoo.com/huskyreps/b845b3cbed/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/b845b3cbed/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:242008348",
+      "seller": "Husky",
+      "album_id": "242008348",
+      "url": "https://huskyreps.x.yupoo.com/albums/242008348?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "2025 IH4302-065￥265 zip-up coat IH4303-065￥255 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:ih4302",
+      "image": "https://photo.yupoo.com/huskyreps/8385363ab4/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/8385363ab4/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:245346981",
+      "seller": "Husky",
+      "album_id": "245346981",
+      "url": "https://huskyreps.x.yupoo.com/albums/245346981?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "￥339 FREITAG 🔥F41 🔥 88040457 (长30CM*宽18CM*高9CM）",
+      "brand": "Husky 1:1",
+      "price_yuan": 339.0,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:other:88040457 f41 freitag 宽18cm 长30cm 高9cm",
+      "image": "https://photo.yupoo.com/huskyreps/07e035e0a7/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/07e035e0a7/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:249836443",
+      "seller": "Husky",
+      "album_id": "249836443",
+      "url": "https://huskyreps.x.yupoo.com/albums/249836443?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 HV0949-687￥255 zip-up coat HV0959-687￥245 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:hv0949",
+      "image": "https://photo.yupoo.com/huskyreps/b728375fba/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/b728375fba/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:250322060",
+      "seller": "Husky",
+      "album_id": "250322060",
+      "url": "https://huskyreps.x.yupoo.com/albums/250322060?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "🔥husky1:1￥148 Gradient NOCTA CS Tee 'Mineral' (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": 148.0,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:tee:180cm 68kg cs gradient husky1 im iwear mineral nocta tee",
+      "image": "https://photo.yupoo.com/huskyreps/4634a43b3a/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/4634a43b3a/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:252822876",
+      "seller": "Husky",
+      "album_id": "252822876",
+      "url": "https://huskyreps.x.yupoo.com/albums/252822876?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 IM0697-010-063 🔥husky 1:1￥245 (Open-Hem Fleece Pants)",
+      "brand": "Husky 1:1",
+      "price_yuan": 245.0,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:im0697",
+      "image": "https://photo.yupoo.com/huskyreps/68663fc206/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/68663fc206/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:254720336",
+      "seller": "Husky",
+      "album_id": "254720336",
+      "url": "https://huskyreps.x.yupoo.com/albums/254720336?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "🔥husky1:1🔥￥279~ adidas Originals CTT 3.1 Soft Jacket",
+      "brand": "Husky 1:1",
+      "price_yuan": 279.0,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:jacket:adidas ctt husky1 jacket originals soft",
+      "image": "https://photo.yupoo.com/huskyreps/5a21dc9e38/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/5a21dc9e38/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:255114847",
+      "seller": "Husky",
+      "album_id": "255114847",
+      "url": "https://huskyreps.x.yupoo.com/albums/255114847?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "🔥SALE🔥🔥husky1:1 YEEZY 6 TOP￥239~Pants￥239 🔥(MAX 120kg)",
+      "brand": "Husky 1:1",
+      "price_yuan": 239.0,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:pants:120kg max pants salehusky1 top yeezy",
+      "image": "https://photo.yupoo.com/huskyreps/f302453ffe/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/f302453ffe/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:258117870",
+      "seller": "Husky",
+      "album_id": "258117870",
+      "url": "https://huskyreps.x.yupoo.com/albums/258117870?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "TF 2025 IH4302-063￥265 zip-up coat IH4303-063￥255 pants (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "code:husky 1 1:ih4302",
+      "image": "https://photo.yupoo.com/huskyreps/b9ede72053/small.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/b9ede72053/small.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    },
+    {
+      "id": "husky:huskyreps.x.yupoo.com:258286935",
+      "seller": "Husky",
+      "album_id": "258286935",
+      "url": "https://huskyreps.x.yupoo.com/albums/258286935?uid=1&isSubCate=false&referrercate=5071768",
+      "title": "NOCTA Fleece🔥 husky1:1  TOP￥235 Pants￥225 (im 180CM 68KG iwear size S in the photo)",
+      "brand": "Husky 1:1",
+      "price_yuan": null,
+      "color": "Unknown",
+      "group_key": "text:husky 1 1:fleece:180cm 68kg fleece husky1 im iwear nocta pants top",
+      "image": "https://photo.yupoo.com/huskyreps/09c8abecc5/medium.jpg",
+      "images": [
+        "https://photo.yupoo.com/huskyreps/09c8abecc5/medium.jpg"
+      ],
+      "source": "https://huskyreps.x.yupoo.com/categories/5071768"
+    }
   ],
-  "last_import_count": 0
+  "sources": [
+    {
+      "seller": "Husky",
+      "name": "Husky 1:1",
+      "brand": "Husky 1:1",
+      "url": "https://huskyreps.x.yupoo.com/categories/5071768",
+      "kind": "selected_category"
+    }
+  ],
+  "sync_notes": [],
+  "last_import_count": 44,
+  "cached_images_this_run": 0
 }
