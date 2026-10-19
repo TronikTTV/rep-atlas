@@ -1,0 +1,11 @@
+{
+  "name": "rep-atlas",
+  "private": true,
+  "version": "2.0.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}
