@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/docs/index.html"
+    },
+    {
+      "source": "/data/:file",
+      "destination": "/docs/data/:file"
+    },
+    {
+      "source": "/images/:file",
+      "destination": "/docs/images/:file"
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "destination": "/docs/manifest.webmanifest"
+    },
+    {
+      "source": "/icon.svg",
+      "destination": "/docs/icon.svg"
+    }
+  ]
+}
