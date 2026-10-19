@@ -72,7 +72,8 @@ jobs:
         run: |
           git config user.name "rep-atlas-bot"
           git config user.email "rep-atlas-bot@users.noreply.github.com"
-          git add docs/data/catalogue.json docs/images/
+          git add docs/data/catalogue.json
+          if [ -d docs/images ]; then git add docs/images; fi
           if ! git diff --cached --quiet; then
             git commit -m "Update REP ATLAS catalogue"
             git push
