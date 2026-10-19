@@ -5,6 +5,8 @@ Runs in GitHub Actions and merges new data with previous JSON.
 """
 import argparse
 import hashlib
+import mimetypes
+import os
 import json
 import re
 import time
@@ -48,7 +50,7 @@ ALIASES={
 }
 ALBUM_RX=re.compile(r'/albums/(\d+)')
 CATEGORY_RX=re.compile(r'/categories/(\d+)')
-PRICE_RX=re.compile(r'(?:[¥￥]\s*([0-9]+(?:\.[0-9]+)?)|\b([0-9]+(?:\.[0-9]+)?)\s*(?:rmb|yuan)\b)',re.I)
+PRICE_RX=re.compile(r'(?:[¥￥]\s*[~≈：:=]?\s*([0-9]+(?:\.[0-9]+)?)|\b([0-9]+(?:\.[0-9]+)?)\s*(?:rmb|yuan)\b)',re.I)
 LINKED_RX=re.compile(r'https?://[\w-]+\.x\.yupoo\.com(?:/[^\s"<>]+)?',re.I)
 TYPES=('tracksuit','hoodie','t shirt','tee','polo','cardigan','fleece','gilet','jeans','joggers','trousers','pants','shorts','sweater','jacket','coat','vest','shirt','cap','hat','socks','bag','belt','trainers','shoes')
 STOP={'new','hot','sale','original','quality','premium','style','fashion','latest','2024','2025','2026','summer','winter','spring','autumn','version','batch','size','sizes','photo','men','women','unisex','wear','cm','kg','with','for','and','in','the','yuan','rmb','husky','taurus','reps','stock','1','100'}
@@ -166,7 +168,7 @@ def parse_listing(html,seller,origin,source,brand_hint):
   # Only group when product has a recognisable style code or distinctive title.
   if code and brand!='Other':
    group='code:'+normal(brand)+':'+code.group(1)
-  elif brand!='Other' and len(words)>=3:
+  elif brand!='Other' and len(words)>=4:
    group='text:'+normal(brand)+':'+typ+':'+ ' '.join(sorted(set(words)))[:160]
   else:
    group='unique:'+seller.lower()+':'+urlparse(url).hostname+':'+album
@@ -187,77 +189,219 @@ def extra_sources(extra,seller,brands):
                  'url':url.split('?')[0],'kind':'manual_linked_yupoo'})
  return result
 
+
+def brand_from_request(label):
+ if not label or normal(label) in ('all', 'auto', 'other'):
+  return None
+ return next((name for name in ALIASES if normal(name)==normal(label)), label.strip())
+
+def extract_album(html,seller,url,brand_hint=None):
+ """Read metadata and product photos from a single, specifically selected public album."""
+ soup=BeautifulSoup(html,'html.parser')
+ title=''
+ for name in ('og:title','twitter:title'):
+  n=soup.find('meta',attrs={'property':name}) or soup.find('meta',attrs={'name':name})
+  if n and n.get('content'):title=n['content'].strip();break
+ if not title:
+  for sel in ('h1','.album__name','.album3__name','.showalbum__header__title','title'):
+   n=soup.select_one(sel)
+   if n:
+    title=n.get_text(' ',strip=True)
+    if title:break
+ title=re.sub(r'\s*[-|]\s*(?:Yupoo|photo album).*$', '', title, flags=re.I).strip()[:350] or ('Yupoo album '+ALBUM_RX.search(url).group(1))
+ photos=[]
+ def add_image(u):
+  u=safe_url(u,url)
+  if urlparse(u).hostname!='photo.yupoo.com':return
+  if not re.search(r'\.(?:jpg|jpeg|png|webp)(?:\?|$)',u,re.I):return
+  if u not in photos:photos.append(u)
+ for key in ('og:image','twitter:image'):
+  n=soup.find('meta',attrs={'property':key}) or soup.find('meta',attrs={'name':key})
+  if n:add_image(n.get('content',''))
+ for im in soup.select('img'):
+  for attr in ('data-origin','data-original','data-src','data-lazy','data-photo-src','src'):
+   u=im.get(attr,'')
+   if u:
+    add_image(u)
+    if 'photo.yupoo.com' in u:break
+ for a in soup.select('a[href]'):
+  if 'photo.yupoo.com' in a.get('href',''):add_image(a['href'])
+ # Deduplicate same photo in multiple Yupoo resolution sizes.
+ byphoto={}
+ for u in photos:
+  k='/'.join(urlparse(u).path.split('/')[:-1])
+  if k not in byphoto or any(x in urlparse(u).path for x in ('/medium.','/large.','/original.')):
+   byphoto[k]=u
+ photos=list(byphoto.values())[:30]
+ m=ALBUM_RX.search(url)
+ if not m:raise ValueError('Expected a Yupoo album link')
+ clean=normal(PRICE_RX.sub('',title))
+ color=next((x.title() for x in COLORS if re.search(r'(?<!\w)'+re.escape(x)+r'(?!\w)',clean)),'Unknown')
+ prices=[float(a or b) for a,b in PRICE_RX.findall(title) if 0<float(a or b)<50000]
+ price=prices[0] if len(set(prices))==1 else None
+ brand=brand_from_request(brand_hint) or brand_name(title)
+ album_id=m.group(1);host=urlparse(url).hostname
+ ident=seller.lower()+':'+host+':'+album_id
+ return {'id':ident,'seller':seller,'album_id':album_id,'url':uid(url),'title':title,
+         'brand':brand,'price_yuan':price,'color':color,
+         'group_key':'unique:'+ident, 'image':photos[0] if photos else '',
+         'images':photos,'source':url}
+
+def photo_cache(offer,limit,stats):
+ """Cache permitted public Yupoo photos in GitHub Pages so external hotlinks aren't required."""
+ if limit<=0:return
+ images=offer.get('images') or ([offer['image']] if offer.get('image') else [])
+ cached=[]
+ for img in images[:limit]:
+  if img.startswith('images/'):
+   cached.append(img);continue
+  if not img.startswith('https://photo.yupoo.com/'):
+   continue
+  key=hashlib.sha256(img.encode()).hexdigest()[:20]
+  existing=list((ROOT/'docs'/'images').glob(key+'.*'))
+  if existing:
+   cached.append('images/'+existing[0].name);continue
+  if stats['count']>=stats['max']:break
+  for candidate in [img,
+     re.sub(r'/(small|medium|large)\.jpg(?:\?.*)?$', '/medium.jpg', img),
+     re.sub(r'/(small|medium|large)\.jpg(?:\?.*)?$', '/large.jpg', img)]:
+   try:
+    response=requests.get(candidate,headers=HEADERS,timeout=(8,18))
+    typ=response.headers.get('content-type','').lower().split(';')[0]
+    if response.ok and typ.startswith('image/') and len(response.content)>700:
+     ext='.png' if typ=='image/png' else '.webp' if typ=='image/webp' else '.jpg'
+     output=ROOT/'docs'/'images'/(key+ext)
+     output.parent.mkdir(parents=True,exist_ok=True)
+     output.write_bytes(response.content)
+     cached.append('images/'+output.name)
+     stats['count']+=1
+     break
+   except requests.RequestException:pass
+ if cached:
+  offer['images']=cached
+  offer['image']=cached[0]
+
+def prune_unknown_source(source, source_brand, offer):
+ """Prefer an explicit brand provided by the user or source, not unrelated title substrings."""
+ given=brand_from_request(source_brand)
+ if given:
+  offer['brand']=given
+ elif source.get('brand') not in ('Other', None, ''):
+  offer['brand']=source['brand']
+ else:
+  offer['brand']=brand_name(offer['title'])
+ return offer
+
+def import_source(args, seller, url, brand, offers, sources, notes, stats):
+ if not is_yupoo(url):
+  raise ValueError('The link must be https://SOMETHING.x.yupoo.com/albums/ID or /categories/ID')
+ if urlparse(url).scheme!='https':
+  raise ValueError('Only https Yupoo links are supported')
+ origin='https://'+urlparse(url).hostname
+ path=urlparse(url).path
+ album=ALBUM_RX.search(path)
+ is_category=bool(CATEGORY_RX.search(path))
+ if path.rstrip('/') not in ('','/','/albums') and not (album or is_category):
+  raise ValueError('Please use a Yupoo album, category, or shop homepage URL')
+ source={'seller':seller,'name':brand or ('Album '+album.group(1) if album else 'Catalogue'),
+         'brand':brand_from_request(brand) or 'Other',
+         'url':url.split('?')[0],'kind':'selected_album' if album else 'selected_category'}
+ sources[seller+'|'+source['url']]=source
+ if album:
+  html=fetch(url,args.delay)
+  item=extract_album(html,seller,url,brand)
+  # Prefer title from index when present, and album details' photos.
+  previous=offers.get(item['id'],{})
+  if len(item.get('images',[]))==0 and previous.get('images'):
+   item['images']=previous['images']
+   item['image']=previous['image']
+  photo_cache(item,30,stats)
+  offers[item['id']]=item
+  return 1
+ base=source['url'].rstrip('/')
+ if path.rstrip('/') in ('','/'):base=origin+'/albums/'
+ found_ids=set();total=0
+ for p in range(1,args.pages+1):
+  joiner='&' if '?' in base else '?'
+  paged=base+joiner+'page='+str(p)
+  try:
+   html=fetch(paged,args.delay)
+   new=parse_listing(html,seller,origin,source['url'],source['brand'])
+  except Exception as e:
+   notes.append(source['url']+' page '+str(p)+': '+str(e))
+   break
+  fresh=[o for o in new if o['id'] not in found_ids]
+  if not fresh:break
+  for o in fresh:
+   found_ids.add(o['id'])
+   o=prune_unknown_source(source,brand,o)
+   photo_cache(o,1,stats)
+   offers[o['id']]=o
+   total+=1
+   if total>=args.max_offers:break
+  if total>=args.max_offers:break
+ return total
+
 def main(args):
- brands=[x.strip() for x in args.brands.split(',') if x.strip()]
- if not brands:raise ValueError('Specify one or more brands, or ALL')
- all_mode=len(brands)==1 and brands[0].upper()=='ALL'
+ if args.sellers=='Both' and args.url:
+  raise ValueError('Choose Husky or Taurus when importing one Yupoo link')
  try:db=json.loads(DEST.read_text(encoding='utf8'))
- except (OSError,json.JSONDecodeError):db={'version':2,'offers':[],'sources':[]}
+ except (OSError,json.JSONDecodeError):db={'version':3,'offers':[],'sources':[]}
  offers={o['id']:o for o in db.get('offers',[]) if o.get('id')}
  sources={s['seller']+'|'+s['url']:s for s in db.get('sources',[]) if s.get('seller') and s.get('url')}
- notes=[];loaded=0;stamp=datetime.now(timezone.utc).isoformat(timespec='seconds')
- for seller in (SELLERS if args.sellers=='Both' else [args.sellers]):
-  origin=SELLERS[seller];discovered=[]
-  for page in (origin+'/categories/',origin+'/albums/?page=1'):
-   try:
-    html=fetch(page,args.delay)
-    discovered.extend(discover(html,origin,seller))
-   except Exception as e:notes.append(seller+' discovery '+page+': '+str(e))
-  for src in discovered+extra_sources(args.extra_sources,seller,brands):
-   sources[seller+'|'+src['url']]=src
-  candidates=[s for s in sources.values() if s['seller']==seller and
-   (all_mode or any(matches(s.get('name',''),b) or matches(s.get('brand',''),b) for b in brands))]
-  seen_sources=set()
-  if all_mode and not candidates:
-   candidates=[{'seller':seller,'name':'All albums','brand':'Other','url':origin+'/albums/','kind':'catalogue'}]
-  if not candidates:notes.append(seller+': no matching brand categories found: '+', '.join(brands))
-  print('Discover',seller,'matched',len(candidates),'sources',flush=True)
-  for source in candidates:
-   if source['url'] in seen_sources:continue
-   seen_sources.add(source['url'])
-   if len(seen_sources)>args.max_sources:break
-   url=source['url'];parsed=urlparse(url)
-   if parsed.path.rstrip('/') in ('','/'):
-    base=url.rstrip('/')+'/albums/'
-   else:base=url
-   seen_albums=set()
-   for i in range(1,args.pages+1):
-    sep='&' if '?' in base else '?'
-    paged=base+sep+'page='+str(i)
+ notes=[];count=0
+ stats={'count':0,'max':max(0,args.image_limit)}
+ stamp=datetime.now(timezone.utc).isoformat(timespec='seconds')
+ if args.url:
+  seller=args.sellers
+  count=import_source(args,seller,args.url,args.brand,offers,sources,notes,stats)
+ else:
+  brands=[x.strip() for x in args.brands.split(',') if x.strip()]
+  if not brands:raise ValueError('Choose brands, or enter a Yupoo URL')
+  if any(normal(x)=='all' for x in brands) and len(brands)!=1:raise ValueError('ALL must be used alone')
+  all_mode=len(brands)==1 and brands[0].upper()=='ALL'
+  for seller in SELLERS if args.sellers=='Both' else [args.sellers]:
+   origin=SELLERS[seller];discovered=[]
+   for page in (origin+'/categories/',origin+'/albums/?page=1'):
+    try:discovered.extend(discover(fetch(page,args.delay),origin,seller))
+    except Exception as e:notes.append('Discovery error '+page+': '+str(e))
+   for src in discovered+extra_sources(args.extra_sources,seller,brands):
+    sources[seller+'|'+src['url']]=src
+   candidates=[s for s in sources.values() if s['seller']==seller and
+    (all_mode or any(matches(s.get('name',''),b) or matches(s.get('brand',''),b) for b in brands))]
+   if not candidates:notes.append(seller+': no matching categories for '+', '.join(brands))
+   for source in candidates[:args.max_sources]:
     try:
-     html=fetch(paged,args.delay)
-     found=parse_listing(html,seller,url,source['url'],source.get('brand'))
-    except Exception as e:
-     notes.append(seller+' '+source['name']+' page '+str(i)+': '+str(e));break
-    new=[o for o in found if o['id'] not in seen_albums]
-    if not new:break
-    for o in new:
-     seen_albums.add(o['id']);offers[o['id']]=o;loaded+=1
-    print(seller,source['name'],'page',i,'new',len(new),flush=True)
-    if loaded>=args.max_offers:break
-   if loaded>=args.max_offers:break
- db={'version':2,'updated_at':stamp if loaded else db.get('updated_at'),
+     count+=import_source(args,seller,source['url'],source.get('brand'),offers,sources,notes,stats)
+    except Exception as e:notes.append('Source '+source['url']+': '+str(e))
+    if count>=args.max_offers:break
+ db={'version':3,'updated_at':stamp if count else db.get('updated_at'),
      'last_attempt':stamp,'offers':sorted(offers.values(),key=lambda o:o['id']),
      'sources':sorted(sources.values(),key=lambda s:(s['seller'],s['name'])),
-     'sync_notes':notes,'last_import_count':loaded}
+     'sync_notes':notes,'last_import_count':count,'cached_images_this_run':stats['count']}
  DEST.parent.mkdir(parents=True,exist_ok=True)
  DEST.write_text(json.dumps(db,ensure_ascii=False,indent=2),encoding='utf8')
- print('Summary',loaded,'offers processed;',len(offers),'total;',len(sources),'sources;',len(notes),'notes',flush=True)
- for n in notes:print('NOTE:',n,flush=True)
- if not loaded:raise SystemExit('No listings imported: inspect notes and check Yupoo accessibility')
+ print('Imported',count,'offers;',len(offers),'total;',stats['count'],'images cached;',len(notes),'warnings')
+ for note in notes[:40]:print('NOTE',note)
+ if count==0:
+  raise SystemExit('No items imported. Check album URL, category and GitHub Actions log.')
 
 if __name__=='__main__':
  p=argparse.ArgumentParser()
  p.add_argument('--sellers',choices=['Both','Husky','Taurus'],default='Both')
  p.add_argument('--brands',default='Stone Island,Moncler,Nike,Essentials')
- p.add_argument('--extra-sources',default='',help='Semicolon-separated Brand=https://example.x.yupoo.com/...')
- p.add_argument('--pages',type=int,default=5)
- p.add_argument('--max-sources',type=int,default=80)
- p.add_argument('--max-offers',type=int,default=25000)
- p.add_argument('--delay',type=float,default=.7)
- a=p.parse_args()
- a.pages=max(1,min(25,a.pages))
- a.max_sources=max(1,min(200,a.max_sources))
- a.max_offers=max(1,min(50000,a.max_offers))
- a.delay=max(.5,a.delay)
- main(a)
+ p.add_argument('--url',default='',help='Specific Yupoo album, category or shop homepage')
+ p.add_argument('--brand',default='',help='Optional brand for URL imports')
+ p.add_argument('--extra-sources',default='')
+ p.add_argument('--pages',type=int,default=2)
+ p.add_argument('--max-sources',type=int,default=20)
+ p.add_argument('--max-offers',type=int,default=800)
+ p.add_argument('--image-limit',type=int,default=100)
+ p.add_argument('--delay',type=float,default=.6)
+ args=p.parse_args()
+ args.pages=max(1,min(20,args.pages))
+ args.max_sources=max(1,min(100,args.max_sources))
+ args.max_offers=max(1,min(10000,args.max_offers))
+ args.image_limit=max(0,min(250,args.image_limit))
+ args.delay=max(.5,args.delay)
+ main(args)
