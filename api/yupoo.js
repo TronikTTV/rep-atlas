@@ -1,4 +1,4 @@
-const { parsePage } = require('../lib/yupoo-parser');
+const { resolveImport } = require('../lib/yupoo-import');
 
 function yupooUrl(value) {
   try {
@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
     url.searchParams.set('page', String(Math.min(2000, Math.max(1, Number(req.query.page) || 1))));
   }
   try {
-    return res.status(200).json(parsePage(await readUrl(url.href), url.href, seller, brand));
+    return res.status(200).json(await resolveImport(url.href, seller, brand, readUrl));
   } catch (error) {
     return res.status(502).json({ error: 'Unable to import this Yupoo page: ' + error.message });
   }
