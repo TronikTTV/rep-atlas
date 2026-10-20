@@ -45,6 +45,7 @@ function similarity(a,b){
  return overlap(wa,wb);
 }
 function exactKey(o){
+ if(o.preserve_listing)return 'listing:'+o.id;
  const brand=brandOf(o),k=kind(o),c=codes(o);
  if(brand&&c.length)return 'style:'+brand+':'+c[0]+':'+(k==='other'?'item':k);
  const w=words(o);
@@ -62,7 +63,7 @@ function group(offers,edits={}){
  const arr=[...groups.values()];
  if(arr.length<=3000)for(let i=0;i<arr.length;i++){const a=arr[i];if(a.merged||!a.offers.length)continue;
   for(let j=i+1;j<arr.length;j++){const b=arr[j];if(b.merged||!b.offers.length)continue;
-    if(a.offers.some(x=>b.offers.some(y=>x.seller!==y.seller && similarity(x,y)>=.96 && words(x).length>=5 && words(y).length>=5))){
+    if(a.offers.some(x=>b.offers.some(y=>!x.preserve_listing && !y.preserve_listing && x.seller!==y.seller && similarity(x,y)>=.96 && words(x).length>=5 && words(y).length>=5))){
       a.offers.push(...b.offers);b.merged=true;
     }
   }

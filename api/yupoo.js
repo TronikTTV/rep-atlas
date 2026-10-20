@@ -1,12 +1,48 @@
-const cheerio=require('cheerio');
-const cors=res=>{res.setHeader('Access-Control-Allow-Origin','*');res.setHeader('Access-Control-Allow-Methods','GET,OPTIONS');res.setHeader('Access-Control-Allow-Headers','Content-Type')};
-const yupooUrl=value=>{try{const url=new URL(String(value||''));return url.protocol==='https:'&&/^[a-z0-9-]+\.x\.yupoo\.com$/.test(url.hostname)&&!url.port?url:null}catch{return null}};
-const validTitle=value=>{const clean=String(value||'').replace(/[🔥⭐★✅\s]/g,'').toLowerCase();return clean.length>5&&!/^(hot|sale|new|husky1:1|taurus|welcome|catalogue|shop)$/.test(clean)};
-const photo=(raw,base)=>{try{const url=new URL(String(raw||'').replace(/\\\//g,'/'),base);if(url.protocol!=='https:'||url.hostname!=='photo.yupoo.com'||!/\.(png|jpeg|jpg|webp)/i.test(url.pathname))return '';url.pathname=url.pathname.replace(/\/small\.(png|jpeg|jpg|webp)$/i,'/medium.$1');return url.href}catch{return ''}};
-const getPhotos=($,html,url)=>{const map=new Map(),add=value=>{const src=photo(value,url);if(!src)return;const key=src.replace(/\/(?:small|medium|large|original)\.(png|jpeg|jpg|webp).*$/i,'');if(!map.has(key)||!/\/small\./.test(src))map.set(key,src)};$('img').each((i,element)=>{const image=$(element);['data-origin','data-original','data-src','data-lazy','data-photo-src','src'].forEach(attribute=>add(image.attr(attribute)))});$('meta[property="og:image"],meta[name="twitter:image"]').each((i,element)=>add($(element).attr('content')));for(const match of html.replace(/\\\//g,'/').matchAll(/https:\/\/photo\.yupoo\.com\/[^\s"'<>\\]+?\.(?:jpg|jpeg|png|webp)/gi))add(match[0]);return [...map.values()].slice(0,80)};
-const brands=['Stone Island','Moncler','Nike','Essentials','The North Face','Adidas','Nocta','Stussy','Prada','Ralph Lauren','Canada Goose','Amiri','Bape','Corteiz','Palace','Supreme','Trapstar','Carhartt','Louis Vuitton','Montirex','Monterrain','Berghaus'];
-const brandOf=(title,forced)=>forced&&!/^(auto|other|husky 1:1)$/i.test(forced)?forced:brands.find(brand=>title.toLowerCase().includes(brand.toLowerCase()))||'Other';
-const price=title=>{const values=[...String(title).matchAll(/[¥￥]\s*~?\s*(\d{2,5})/g)].map(match=>Number(match[1])),unique=[...new Set(values)].sort((a,b)=>a-b);return{price_yuan:unique[0]??null,price_text:unique.length>1?'¥'+unique[0]+'–'+unique.at(-1):unique.length?'¥'+unique[0]:''}};
-const parser=(html,url,seller,forced)=>{const $=cheerio.load(html),album=/\/albums\/(\d+)/.exec(url);const make=(href,title,images,thumbnail)=>{const id=/\/albums\/(\d+)/.exec(href)?.[1];if(!id||!validTitle(title))return null;const uid=seller.toLowerCase()+':'+new URL(href).hostname+':'+id;return{id:uid,seller,url:href,album_id:id,title,brand:brandOf(title,forced),...price(title),color:'Unknown',group_key:'unique:'+uid,image:images[0]||thumbnail||'',images:images.length?images:(thumbnail?[thumbnail]:[]),gallery_loaded:!!images.length,source:url}};if(album){const title=($('meta[property="og:title"]').attr('content')||$('meta[name="twitter:title"]').attr('content')||$('h1').first().text()||$('title').text()||'').trim(),images=getPhotos($,html,url),item=make(url,title,images,'');if(!item)throw Error('Album has no product title');return[item]}const results=new Map();$('a[href*="/albums/"]').each((i,element)=>{const anchor=$(element);let href;try{href=new URL(anchor.attr('href'),url).href}catch{return}if(!yupooUrl(href))return;let wrap=anchor.parents('.album__main,.album3__main,[class*="album"]').first();if(!wrap.length)wrap=anchor.parent();const title=(wrap.find('.album__main__name,.album3__main__name,.album__name,.album3__name,.album__title,.album3__title,[class*="name"]').first().text()||anchor.attr('title')||anchor.text()||'').trim(),image=wrap.find('img').first(),thumbnail=photo(image.attr('data-origin')||image.attr('data-original')||image.attr('data-src')||image.attr('src'),url),item=make(href,title,[],thumbnail);if(item)results.set(item.id,item)});return[...results.values()]};
-async function readUrl(url){let last;for(let attempt=0;attempt<2;attempt++){const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),14000);try{const response=await fetch(url,{headers:{'user-agent':attempt?'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/128 Safari/537.36':'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1','accept-language':'en-GB,en;q=0.9'},redirect:'follow',signal:controller.signal});if(!response.ok)throw Error('Yupoo HTTP '+response.status);const html=await response.text();if(html.length>5000000)throw Error('Page too large');if(/captcha required|access denied|enable javascript to continue|too many requests/i.test(html))throw Error('Yupoo blocked the request');return html}catch(error){last=error}finally{clearTimeout(timeout)}}throw last}
-module.exports=async(req,res)=>{cors(res);if(req.method==='OPTIONS')return res.status(204).end();res.setHeader('Cache-Control','no-store');if(req.method!=='GET')return res.status(405).json({error:'GET only'});const url=yupooUrl(req.query.url);if(!url)return res.status(400).json({error:'Paste a public HTTPS Yupoo URL'});if(!/^\/(?:$|albums\/?(?:\d+)?|categories\/\d+|collections\/\d+)\/?$/.test(url.pathname))return res.status(400).json({error:'Use a Yupoo album, category, collection or store URL'});const seller=req.query.seller==='Taurus'?'Taurus':'Husky',brand=String(req.query.brand||'').slice(0,65),album=/\/albums\/\d+/.test(url.pathname);if(!album){if(url.pathname==='/'||url.pathname==='')url.pathname='/albums';url.searchParams.set('page',String(Math.min(2000,Math.max(1,Number(req.query.page)||1))))}try{const html=await readUrl(url.href),products=parser(html,url.href,seller,brand);return res.status(200).json({kind:album?'album':'category',page:Number(req.query.page)||1,products})}catch(error){return res.status(502).json({error:'Unable to import this Yupoo page: '+error.message})}};
+const { parsePage } = require('../lib/yupoo-parser');
+
+function yupooUrl(value) {
+  try {
+    const url = new URL(String(value || ''));
+    return url.protocol === 'https:' && /^[a-z0-9-]+\.x\.yupoo\.com$/.test(url.hostname) && !url.port ? url : null;
+  } catch { return null; }
+}
+
+async function readUrl(url) {
+  const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 18000);
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1',
+        'accept-language': 'en-GB,en;q=0.9'
+      },
+      redirect: 'error', signal: controller.signal
+    });
+    if (!response.ok) throw Error('Yupoo HTTP ' + response.status);
+    const html = await response.text();
+    if (html.length > 5000000) throw Error('Page too large');
+    if (/captcha required|access denied|access restricted|restricted access|security policy of this website|enable javascript to continue|too many requests/i.test(html)) throw Error('Yupoo is temporarily restricting access. Try again later.');
+    return html;
+  } finally { clearTimeout(timeout); }
+}
+
+module.exports = async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Cache-Control', 'no-store');
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  if (req.method !== 'GET') return res.status(405).json({ error: 'GET only' });
+  const url = yupooUrl(req.query.url);
+  if (!url || !/^\/(?:$|albums\/?(?:\d+)?|categories\/\d+|collections\/\d+)\/?$/.test(url.pathname)) return res.status(400).json({ error: 'Paste a public HTTPS Yupoo album, category, collection or store URL' });
+  const seller = req.query.seller === 'Taurus' ? 'Taurus' : 'Husky';
+  const brand = String(req.query.brand || '').slice(0, 65);
+  if (!/^\/albums\/\d+/.test(url.pathname)) {
+    if (url.pathname === '/') url.pathname = '/albums';
+    url.searchParams.set('page', String(Math.min(2000, Math.max(1, Number(req.query.page) || 1))));
+  }
+  try {
+    return res.status(200).json(parsePage(await readUrl(url.href), url.href, seller, brand));
+  } catch (error) {
+    return res.status(502).json({ error: 'Unable to import this Yupoo page: ' + error.message });
+  }
+};

@@ -29,7 +29,7 @@ a.link{color:var(--accent);text-decoration:underline;text-underline-offset:3px}.
 @media(min-width:600px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.tools{grid-template-columns:2fr 1fr 1fr}.toolrow{display:contents}}
 @media(min-width:930px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}main{padding:25px 25px 110px}}
 </style>
-<script src="matcher.js"></script>
+<script src="matcher.js?v=3"></script>
 </head>
 <body>
 <div class="app">
@@ -105,16 +105,20 @@ $('quickImport').onclick=async()=>{
  try{parsed=new URL(raw)}catch{alert('Paste a valid Yupoo link');return}
  if(parsed.protocol!=='https:'||!/^[a-z0-9-]+\.x\.yupoo\.com$/i.test(parsed.hostname)||!/^\/(?:$|albums\/?(?:\d+)?|categories\/\d+|collections\/\d+)/i.test(parsed.pathname)){alert('Paste a public Yupoo album, category, collection or store link');return}
  const button=$('quickImport'),state=$('importState'),isAlbum=/\/albums\/\d+/i.test(parsed.pathname);button.disabled=true;button.textContent='Importing in batches…';
- let found=0;const set=new Map(localOffers().map(o=>[o.id,o])),seen=new Set();
+ let found=0,totalPages=null,nextPage=1,finished=false;const set=new Map(localOffers().map(o=>[o.id,o])),seen=new Set();
  try{
-  for(let start=1;start<=(isAlbum?1:2000);start+=6){
-   const pages=Array.from({length:isAlbum?1:6},(_,i)=>start+i);state.textContent=isAlbum?'Reading product gallery…':'Reading pages '+pages[0]+'–'+pages[pages.length-1]+' together… '+found+' products found';
-   const batches=await Promise.all(pages.map(page=>importPage(raw,seller,brand,page)));let newThisBatch=0,emptyPages=0;
-   for(const result of batches){const incoming=(result.products||[]).filter(o=>o.title&&!/^\s*[🔥⭐★]*\s*(HOT|Husky\s*1:?1|SALE|NEW)\s*[🔥⭐★]*\s*$/i.test(o.title));if(!incoming.length)emptyPages++;for(const o of incoming){if(!seen.has(o.id)){seen.add(o.id);newThisBatch++;found++}set.set(o.id,o)}}
-   save('rep_atlas_imports_v2',[...set.values()]);reindex();draw();state.textContent='Saved '+found+' product cards so far…';
-   if(isAlbum||newThisBatch===0||emptyPages>0)break;
+  while(!finished&&nextPage<=2000){
+   const count=nextPage===1||isAlbum?1:Math.min(6,totalPages?totalPages-nextPage+1:6);
+   const pages=Array.from({length:count},(_,i)=>nextPage+i);state.textContent=isAlbum?'Reading product gallery…':'Reading pages '+pages[0]+'–'+pages[pages.length-1]+(totalPages?' of '+totalPages:'')+'… '+found+' products saved';
+   const batches=await Promise.allSettled(pages.map(page=>importPage(raw,seller,brand,page)));let newThisBatch=0;const failures=[];
+   for(let n=0;n<batches.length;n++){const result=batches[n];if(result.status==='rejected'){failures.push('page '+pages[n]+': '+result.reason.message);continue}const data=result.value;if(data.total_pages)totalPages=data.total_pages;const incoming=(data.products||[]).filter(o=>o.title&&o.image);for(const o of incoming){if(!seen.has(o.id)){seen.add(o.id);newThisBatch++;found++}const old=set.get(o.id);if(!old||old.parser_version!==o.parser_version)delete details[o.id];set.set(o.id,o)}if(data.has_more===false&&(data.total_pages==null||data.page>=data.total_pages))finished=true;}
+   save('rep_atlas_imports_v2',[...set.values()]);save('rep_atlas_details_v1',details);reindex();draw();state.textContent='Saved '+found+' product cards with photos…';
+   if(failures.length)throw Error('Some pages could not be read. '+failures.join('; ')+'. Tap Import again to retry.');
+   nextPage+=pages.length;
+   if(isAlbum||totalPages&&nextPage>totalPages)finished=true;
+   if(!newThisBatch&&!finished)throw Error('The next pages returned no new products. Import is incomplete; retry this category.');
   }
-  if(!found)throw Error('No product cards were found on that link');state.textContent='✓ '+found+' products imported fast. Open any item to load its complete photo gallery.';
+  if(!found)throw Error('No product cards with photos were found on that link');if(!finished)throw Error('This category exceeded the page limit; the import is incomplete.');state.textContent='✓ '+found+' products imported with photos. Open any item for its full gallery.';
  }catch(e){try{save('rep_atlas_imports_v2',[...set.values()])}catch{}reindex();draw();state.textContent='Import stopped: '+e.message+' ('+found+' products were safely kept)'}
  finally{button.disabled=false;button.textContent='Import catalogue'}
 };
@@ -131,7 +135,7 @@ document.addEventListener('click',e=>{
  const b=e.target.closest('[data-kind]');
  if(b){huskyKind=b.dataset.kind;document.querySelectorAll('[data-kind]').forEach(v=>v.classList.toggle('select',v===b));showHuskyCategories()}
  const i=e.target.closest('[data-import-category]');
- if(i){$('quickUrl').value=i.dataset.importCategory;$('quickSeller').value=categorySeller;$('quickBrand').value=(i.dataset.importLabel||'').split(' — ')[0];switchTab('browse');window.scrollTo(0,0);$('quickUrl').focus()}
+ if(i&&!$('quickImport').disabled){$('quickUrl').value=i.dataset.importCategory;$('quickSeller').value=categorySeller;$('quickBrand').value=(i.dataset.importLabel||'').split(' — ')[0];switchTab('browse');window.scrollTo(0,0);$('quickImport').click()}
 });
 Promise.all([fetch('data/husky_categories.json').then(r=>r.json()).catch(()=>({categories:[]})),fetch('data/taurus_categories.json').then(r=>r.json()).catch(()=>({categories:[]})),fetch('data/catalogues.json').then(r=>r.ok?r.json():null).catch(()=>null)]).then(([h,t,live])=>{if(live&&Array.isArray(live.categories)&&live.categories.length){const clean=c=>({id:c.id,name:c.name||'Untitled catalogue',original_name:c.original_name||c.name||'',name_verified:true,type:c.type||'collection',url:c.url,brand:c.brand||'Other',store_name:c.store_name||'',product_count:c.product_count||0,linked_yupoos:c.linked_yupoos||[]});huskyCats=live.categories.filter(c=>c.seller==='Husky').map(clean);taurusCats=live.categories.filter(c=>c.seller==='Taurus').map(clean)}else{huskyCats=h.categories||[];taurusCats=t.categories||[]}showHuskyCategories()}).catch(()=>{$('huskyCount').textContent='Unable to load';});
 load();

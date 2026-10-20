@@ -5,6 +5,8 @@ on:
     paths:
       - 'docs/**'
       - 'api/**'
+      - 'lib/**'
+      - 'tests/**'
       - 'fast_sync.py'
       - 'sync_catalogue.py'
       - 'requirements.txt'
@@ -58,6 +60,10 @@ jobs:
           python -m py_compile sync_catalogue.py fast_sync.py
           node --check api/yupoo.js
           node --check api/image.js
+      - name: Test catalogue importing
+        run: |
+          npm install --ignore-scripts --no-package-lock
+          node --test tests/import-regression.test.js
       - name: Install importer dependencies
         if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[full-sync]')
         run: python -m pip install -r requirements.txt
