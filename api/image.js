@@ -1,16 +1,7 @@
 module.exports=async function handler(req,res){
- const value=String(req.query.url||'');let u;
- try{u=new URL(value)}catch{return res.status(400).send('Bad image URL')}
- if(u.protocol!=='https:'||u.hostname!=='photo.yupoo.com'|| !/\.(jpe?g|png|webp)$/i.test(u.pathname))return res.status(400).send('Invalid image host');
- try{
-   const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),8000);
-   let r;
-   try{r=await fetch(u.href,{redirect:'error',signal:ctl.signal,headers:{'user-agent':'Mozilla/5.0','referer':'https://huskyreps.x.yupoo.com/'}})}finally{clearTimeout(timer)}
-   const t=(r.headers.get('content-type')||'').split(';')[0].trim();
-   if(!r.ok||!/^image\/(?:jpeg|png|webp)$/.test(t))return res.status(404).send('Image unavailable');
-   const data=Buffer.from(await r.arrayBuffer());
-   if(data.byteLength>7_500_000)return res.status(413).send('Image too large');
-   res.setHeader('Content-Type',t);res.setHeader('Cache-Control','public, s-maxage=604800, stale-while-revalidate=86400');
-   res.send(data)
- }catch(e){return res.status(502).send('Unable to retrieve photo')}
-}
+ res.setHeader('Access-Control-Allow-Origin','*');if(req.method==='OPTIONS')return res.status(204).end();
+ const value=String(req.query.url||'');let url;try{url=new URL(value)}catch{return res.status(400).send('Bad image URL')}
+ if(url.protocol!=='https:'||url.hostname!=='photo.yupoo.com'||!/\.(jpe?g|png|webp)$/i.test(url.pathname))return res.status(400).send('Invalid image host');
+ const catalogue=(url.pathname.split('/').filter(Boolean)[0]||'').replace(/[^a-z0-9-]/gi,''),referer=catalogue?'https://'+catalogue+'.x.yupoo.com/':'https://x.yupoo.com/';
+ try{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9000);let response;try{response=await fetch(url.href,{redirect:'error',signal:controller.signal,headers:{'user-agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1','referer':referer}})}finally{clearTimeout(timer)}const type=(response.headers.get('content-type')||'').split(';')[0].trim();if(!response.ok||!/^image\/(?:jpeg|png|webp)$/.test(type))return res.status(404).send('Image unavailable');const data=Buffer.from(await response.arrayBuffer());if(data.byteLength>7500000)return res.status(413).send('Image too large');res.setHeader('Content-Type',type);res.setHeader('Cache-Control','public, s-maxage=604800, stale-while-revalidate=86400');return res.send(data)}catch{return res.status(502).send('Unable to retrieve photo')}
+};

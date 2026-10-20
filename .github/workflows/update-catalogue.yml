@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'docs/**'
+      - 'api/**'
+      - 'fast_sync.py'
       - 'sync_catalogue.py'
       - 'requirements.txt'
       - '.github/workflows/update-catalogue.yml'
@@ -15,7 +17,7 @@ on:
         default: Both
         options: [Both, Husky, Taurus]
       brands:
-        description: "Comma-separated brands, or ALL (slow)"
+        description: "Comma-separated brands, or ALL"
         type: string
         default: "Stone Island,Moncler,Nike,Essentials"
       pages:
@@ -24,7 +26,7 @@ on:
         default: '5'
         options: ['2','5','10','20']
       yupoo_url:
-        description: "Specific Yupoo album or category URL (takes priority over brands)"
+        description: "Specific Yupoo album or category URL"
         type: string
         default: ''
       brand:
@@ -32,7 +34,7 @@ on:
         type: string
         default: ''
       extra_sources:
-        description: "Optional manually added linked galleries; Brand=https://foo.x.yupoo.com;Brand=https://bar.x.yupoo.com"
+        description: "Optional Brand=https://foo.x.yupoo.com sources"
         type: string
         default: ''
 permissions:
@@ -51,12 +53,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Check importer syntax
-        run: python -m py_compile sync_catalogue.py
-      - name: Install dependencies
-        if: github.event_name == 'workflow_dispatch'
+      - name: Check importer and API syntax
+        run: |
+          python -m py_compile sync_catalogue.py fast_sync.py
+          node --check api/yupoo.js
+          node --check api/image.js
+      - name: Install importer dependencies
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[full-sync]')
         run: python -m pip install -r requirements.txt
-      - name: Import requested brands and linked Yupoo catalogues
+      - name: Fast full sync of all five Yupoo stores
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[full-sync]')
+        run: python fast_sync.py --max-pages 120 --workers 8
+      - name: Import a requested catalogue
         if: github.event_name == 'workflow_dispatch'
         env:
           SELLERS: ${{ inputs.sellers }}
@@ -67,15 +75,15 @@ jobs:
           BRAND: ${{ inputs.brand }}
         run: |
           python sync_catalogue.py --sellers "$SELLERS" --brands "$BRANDS" --pages "$PAGES" --extra-sources "$EXTRA_SOURCES" --url "$YUPOO_URL" --brand "$BRAND"
-      - name: Commit imported catalogue
-        if: github.event_name == 'workflow_dispatch'
+      - name: Commit refreshed catalogue
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[full-sync]')
         run: |
           git config user.name "rep-atlas-bot"
           git config user.email "rep-atlas-bot@users.noreply.github.com"
-          git add docs/data/catalogue.json
+          git add docs/data/catalogue.json docs/data/catalogues.json
           if [ -d docs/images ]; then git add docs/images; fi
           if ! git diff --cached --quiet; then
-            git commit -m "Update REP ATLAS catalogue"
+            git commit -m "Update REP ATLAS combined catalogue"
             git push
           fi
       - name: Configure GitHub Pages

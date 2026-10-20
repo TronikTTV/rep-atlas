@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "updated_at": null,
+  "stores": [
+    {
+      "id": "husky-main",
+      "seller": "Husky",
+      "name": "Husky Reps",
+      "origin": "https://huskyreps.x.yupoo.com",
+      "product_count": 0,
+      "category_count": 0
+    },
+    {
+      "id": "husky-alaska",
+      "seller": "Husky",
+      "name": "Alaska · Husky Extra",
+      "origin": "https://alaskareps.x.yupoo.com",
+      "product_count": 0,
+      "category_count": 0
+    },
+    {
+      "id": "taurus-main",
+      "seller": "Taurus",
+      "name": "Taurus Reps",
+      "origin": "https://deateath.x.yupoo.com",
+      "product_count": 0,
+      "category_count": 0
+    },
+    {
+      "id": "taurus-scorpio",
+      "seller": "Taurus",
+      "name": "Scorpio · Taurus Extra",
+      "origin": "https://scorpio-reps.x.yupoo.com",
+      "product_count": 0,
+      "category_count": 0
+    },
+    {
+      "id": "taurus-pisces",
+      "seller": "Taurus",
+      "name": "Pisces · Taurus Extra",
+      "origin": "https://pisces-reps.x.yupoo.com",
+      "product_count": 0,
+      "category_count": 0
+    }
+  ],
+  "categories": []
+}
