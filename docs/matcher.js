@@ -60,7 +60,7 @@ function group(offers,edits={}){
  for(const o of data){const key=edits[o.id]||exactKey(o);if(!groups.has(key))groups.set(key,{key,offers:[]});groups.get(key).offers.push(o)}
  // Merge high-confidence near-identical descriptions from different sellers.
  const arr=[...groups.values()];
- for(let i=0;i<arr.length;i++){const a=arr[i];if(a.merged||!a.offers.length)continue;
+ if(arr.length<=3000)for(let i=0;i<arr.length;i++){const a=arr[i];if(a.merged||!a.offers.length)continue;
   for(let j=i+1;j<arr.length;j++){const b=arr[j];if(b.merged||!b.offers.length)continue;
     if(a.offers.some(x=>b.offers.some(y=>x.seller!==y.seller && similarity(x,y)>=.96 && words(x).length>=5 && words(y).length>=5))){
       a.offers.push(...b.offers);b.merged=true;
@@ -78,7 +78,8 @@ function group(offers,edits={}){
 }
 function possibleMatches(selected,groups){
  if(!selected||selected.sellers.length>1)return [];
- const cand=groups.filter(g=>g!==selected&&g.sellers.some(s=>!selected.sellers.includes(s)))
+ const selectedBrand=norm(selected.brand),selectedKind=kind(selected.hero);
+ const cand=groups.filter(g=>g!==selected&&norm(g.brand)===selectedBrand&&kind(g.hero)===selectedKind&&g.sellers.some(s=>!selected.sellers.includes(s)))
    .map(g=>({group:g,score:Math.max(...selected.offers.flatMap(a=>g.offers.map(b=>similarity(a,b))))}))
    .filter(x=>x.score>=.55).sort((a,b)=>b.score-a.score).slice(0,5);
  return cand;

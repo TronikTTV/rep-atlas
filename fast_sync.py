@@ -90,7 +90,7 @@ def max_page(html):
  for anchor in soup.select("a[href]"):
   try:pages.extend(int(value) for value in parse_qs(urlparse(anchor.get("href","")).query).get("page",[]) if value.isdigit())
   except Exception:pass
- return min(max(pages),120)
+ return min(max(pages),1000)
 
 def discover_categories(catalog,workers):
  origin=catalog["origin"];found={}
@@ -166,7 +166,7 @@ def parse_listing(html,catalog,categories,page_url):
   price_yuan,price_text=parse_price(title);cleaned=normal(PRICE_RE.sub("",title))
   color=next((colour.title() for colour in COLORS if re.search(r"(?<!\w)"+re.escape(colour)+r"(?!\w)",cleaned)),"Unknown")
   offer_id=f"{catalog['seller'].lower()}:{hostname}:{album_id}"
-  results[offer_id]={"id":offer_id,"seller":catalog["seller"],"catalogue_id":catalog["id"],"store_name":catalog["name"],"album_id":album_id,"url":with_uid(href),"title":title,"brand":brand,"price_yuan":price_yuan,"price_text":price_text,"color":color,"group_key":"unique:"+offer_id,"image":image,"images":[image] if image else [],"gallery_loaded":False,"source":category["url"] if category else origin+"/albums","category_id":category["id"] if category else "","category_name":category["name"] if category else "","listing_page":page_url}
+  results[offer_id]={"id":offer_id,"seller":catalog["seller"],"catalogue_id":catalog["id"],"store_name":catalog["name"],"album_id":album_id,"url":with_uid(href),"title":title,"brand":brand,"price_yuan":price_yuan,"price_text":price_text,"color":color,"group_key":"unique:"+offer_id,"image":image,"gallery_loaded":False,"source":category["url"] if category else origin+"/albums","category_id":category["id"] if category else "","category_name":category["name"] if category else ""}
  return list(results.values())
 
 def scan_catalog(catalog,max_pages,workers):
@@ -202,8 +202,8 @@ def host_from_offer(offer):
  except Exception:return ""
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument("--max-pages",type=int,default=120);parser.add_argument("--workers",type=int,default=8);args=parser.parse_args()
- args.max_pages=max(1,min(200,args.max_pages));args.workers=max(2,min(12,args.workers))
+ parser=argparse.ArgumentParser();parser.add_argument("--max-pages",type=int,default=1000);parser.add_argument("--workers",type=int,default=8);args=parser.parse_args()
+ args.max_pages=max(1,min(2000,args.max_pages));args.workers=max(2,min(12,args.workers))
  try:previous=json.loads(CATALOGUE_PATH.read_text(encoding="utf8"))
  except Exception:previous={"offers":[],"sources":[]}
  known_hosts={urlparse(item["origin"]).hostname for item in CATALOGS}
@@ -224,9 +224,12 @@ def main():
  stamp=datetime.now(timezone.utc).isoformat(timespec="seconds");sources=[]
  for store in store_rows:sources.append({"seller":store["seller"],"name":store["name"],"brand":"All","url":store["origin"],"kind":"store","catalogue_id":store["id"]})
  sources.extend({"seller":category["seller"],"name":category["name"],"brand":category["brand"],"url":category["url"],"kind":category["remote_kind"],"catalogue_id":category["catalogue_id"]} for category in all_categories.values())
+ for offer in all_offers.values():
+  offer.pop("listing_page",None);offer.pop("category_id",None);offer.pop("category_name",None)
+  if not offer.get("images"):offer.pop("images",None)
  database={"version":4,"updated_at":stamp,"last_attempt":stamp,"offers":sorted(all_offers.values(),key=lambda offer:offer["id"]),"sources":sorted(sources,key=lambda source:(source["seller"],source["name"])),"sync_notes":notes[:100],"last_import_count":scanned,"cached_images_this_run":0,"sync_mode":"parallel-index-first"}
  directory={"version":1,"updated_at":stamp,"stores":store_rows,"categories":sorted(all_categories.values(),key=lambda category:(category["seller"],category["store_name"],category["name"]))}
- CATALOGUE_PATH.parent.mkdir(parents=True,exist_ok=True);CATALOGUE_PATH.write_text(json.dumps(database,ensure_ascii=False,indent=2),encoding="utf8");DIRECTORY_PATH.write_text(json.dumps(directory,ensure_ascii=False,indent=2),encoding="utf8")
+ CATALOGUE_PATH.parent.mkdir(parents=True,exist_ok=True);CATALOGUE_PATH.write_text(json.dumps(database,ensure_ascii=False,separators=(",",":")),encoding="utf8");DIRECTORY_PATH.write_text(json.dumps(directory,ensure_ascii=False,indent=2),encoding="utf8")
  print(f"Saved {len(database['offers'])} offers ({scanned} refreshed) from {len(CATALOGS)} stores.")
  for note in notes[:30]:print("NOTE",note)
 
