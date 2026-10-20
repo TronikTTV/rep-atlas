@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": "2026-10-20T21:50:48+00:00",
+  "updated_at": "2026-10-20T22:02:29+00:00",
   "stores": [
     {
       "id": "husky-main",
       "seller": "Husky",
       "name": "Husky Reps",
       "origin": "https://huskyreps.x.yupoo.com",
-      "product_count": 14399,
+      "product_count": 41693,
       "category_count": 385
     },
     {
@@ -23,7 +23,7 @@
       "seller": "Taurus",
       "name": "Taurus Reps",
       "origin": "https://deateath.x.yupoo.com",
-      "product_count": 14396,
+      "product_count": 29765,
       "category_count": 354
     },
     {
