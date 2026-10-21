@@ -69,6 +69,7 @@ test('a response without real product cards fails instead of importing an empty 
 function appHarness(failPage, responder, profileState = { data: { profile: 'Lukas', favourites: [] }, index: { profiles: ['Lukas'] }, writes: [] }) {
   profileState.index ||= { profiles: ['Lukas'] };
   profileState.writes ||= [];
+  profileState.profiles ||= { lukas: profileState.data };
   const elements = new Map(), listeners = [], storage = new Map([['rep_atlas_hide_cloud', 'true']]), requested = [];
   function element(id) {
     if (!elements.has(id)) elements.set(id, { id, value: '', textContent: '', innerHTML: '', disabled: false, hidden: false, style: {}, classList: { add() {}, remove() {}, toggle() {} }, addEventListener() {}, querySelectorAll() { return []; }, click() { return this.onclick?.(); } });
@@ -84,12 +85,14 @@ function appHarness(failPage, responder, profileState = { data: { profile: 'Luka
       const url = new URL(raw, 'https://rep-atlas-mobile.vercel.app');
       if (url.hostname === 'mantledb.sh') {
         const isIndex = url.pathname.endsWith('/profiles/index');
+        const profileKey = decodeURIComponent(url.pathname.split('/').pop()).toLowerCase();
         if ((options.method || 'GET') === 'POST') {
           if (isIndex) profileState.index = JSON.parse(options.body);
-          else profileState.data = JSON.parse(options.body);
-          profileState.writes.push(isIndex ? profileState.index : profileState.data);
+          else { profileState.profiles[profileKey] = JSON.parse(options.body); if (profileKey === 'lukas') profileState.data = profileState.profiles[profileKey]; }
+          profileState.writes.push(isIndex ? profileState.index : profileState.profiles[profileKey]);
         }
-        return { ok: true, status: 200, json: async () => isIndex ? profileState.index : profileState.data };
+        const value = isIndex ? profileState.index : profileState.profiles[profileKey];
+        return { ok: Boolean(value), status: value ? 200 : 404, json: async () => value || { error: 'not found' } };
       }
       if (url.pathname !== '/api/yupoo') return { ok: true, json: async () => ({ categories: [] }) };
       const page = Number(url.searchParams.get('page'));
@@ -123,6 +126,8 @@ test('a mate can add a separate profile without replacing Lukas saved products',
   await app.element('addProfile').onclick();
   assert.deepEqual(profileState.index.profiles, ['Lukas', 'Jamie']);
   assert.equal(JSON.parse(app.storage.get('rep_atlas_profile')), 'Jamie');
+  assert.deepEqual(profileState.profiles.lukas.favourites, ['lukas-saved']);
+  assert.deepEqual(profileState.profiles.jamie.favourites, []);
   assert.ok(profileState.writes.some(write => write.profiles?.includes('Jamie')));
   assert.ok(profileState.writes.some(write => write.profile === 'Lukas' && write.favourites.includes('lukas-saved')));
 });
