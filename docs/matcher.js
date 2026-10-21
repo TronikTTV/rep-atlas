@@ -38,6 +38,12 @@ function core(o){
 function kinds(o){const s=norm(o.title),shirtText=s.replace(/\b(?:t shirts?|tshirts?)\b/g,' ');const found=[];for(const [id,,re] of typeOptions){if(id==='shirts'?re.test(shirtText):re.test(s))found.push(id)}return found.length?found:['other']}
 function kind(o){return kinds(o)[0]}
 function typeLabel(id){return id==='other'?'Other':(typeOptions.find(x=>x[0]===id)||[])[1]||id}
+function canonicalBrand(value,aliases={}){
+ const standardise=name=>{const label=String(name||'Other').trim()||'Other',compact=norm(label).replace(/\s+/g,'');return compact==='cp'||compact==='cpcompany'?'C.P. Company':label};
+ let current=standardise(value);const seen=new Set();
+ for(let i=0;i<10;i++){const key=Object.keys(aliases||{}).find(from=>norm(from)===norm(current));if(!key||seen.has(norm(key)))break;seen.add(norm(key));const next=standardise(aliases[key]);if(!next||norm(next)===norm(current))break;current=next}
+ return current;
+}
 function codes(o){const text=String(o.title||'').toUpperCase().replace(/[🔥⭐]/g,'');
  const found=[...text.matchAll(/\b([A-Z]{1,5}\d{3,6})(?:[-\s](\d{2,4}))?\b/g)].map(m=>m[1]);
  return [...new Set(found)].filter(x=>x.length<9&&!/^(?:CM|KG|SKU)\d+/.test(x));
@@ -108,5 +114,5 @@ function mixBySeller(items){
  while(found){found=false;for(const key of order){const item=buckets.get(key).shift();if(item){mixed.push(item);found=true}}}
  return mixed;
 }
-return {group,exactKey,kind,kinds,typeLabel,typeOptions:typeOptions.map(([id,label])=>({id,label})),codes,similarity,possibleMatches,mixBySeller};
+return {group,exactKey,kind,kinds,typeLabel,typeOptions:typeOptions.map(([id,label])=>({id,label})),codes,similarity,possibleMatches,mixBySeller,canonicalBrand};
 });

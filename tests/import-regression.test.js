@@ -43,6 +43,13 @@ test('grouped seller offers combine their clothing types', () => {
   assert.deepEqual(grouped.find(g => g.hero.id === 'two').types, ['caps']);
 });
 
+test('brand names can be normalised, renamed and merged', () => {
+  assert.equal(matcher.canonicalBrand('C.P'), 'C.P. Company');
+  assert.equal(matcher.canonicalBrand('CP'), 'C.P. Company');
+  assert.equal(matcher.canonicalBrand('CP COMPANY'), 'C.P. Company');
+  assert.equal(matcher.canonicalBrand('Stone Island', { 'Stone Island': 'Stoney', Stoney: 'Stone Island Official' }), 'Stone Island Official');
+});
+
 test('catalogue results alternate Husky and Taurus without changing either seller order', () => {
   const item = (id, seller) => ({ id, sellers: [seller] });
   const mixed = matcher.mixBySeller([
