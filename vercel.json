@@ -2,6 +2,10 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/theme.js",
+      "destination": "/docs/theme.js"
+    },
+    {
       "source": "/matcher.js",
       "destination": "/docs/matcher.js"
     },
