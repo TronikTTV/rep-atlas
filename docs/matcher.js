@@ -61,7 +61,7 @@ function similarity(a,b){
 }
 function exactKey(o){
  if(o.preserve_listing)return 'listing:'+o.id;
- const brand=brandOf(o),k=kind(o),c=codes(o);
+ const brand=brandOf({brand:o.brand_key||o.brand}),k=kind(o),c=codes(o);
  if(brand&&c.length)return 'style:'+brand+':'+c[0]+':'+(k==='other'?'item':k);
  const w=words(o);
  if(brand&&k!=='other'&&w.length>=4)return 'title:'+brand+':'+k+':'+w.join('-');

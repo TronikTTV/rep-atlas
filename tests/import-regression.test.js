@@ -54,6 +54,14 @@ test('brand names can be normalised, renamed and merged', () => {
   assert.equal(matcher.canonicalBrand('Prada', { PRADA: 'Prada' }), 'Prada');
 });
 
+test('brand corrections work before grouping new imports without changing their saved keys', () => {
+  const freshImport = { id: 'new-1', title: 'C.P jacket CP1234', brand: 'C.P', seller: 'Husky' };
+  const corrected = { ...freshImport, brand_key: freshImport.brand, brand: matcher.canonicalBrand(freshImport.brand) };
+  assert.equal(corrected.brand, 'C.P. Company');
+  assert.equal(matcher.exactKey(corrected), matcher.exactKey(freshImport));
+  assert.equal(matcher.group([corrected])[0].brand, 'C.P. Company');
+});
+
 test('catalogue results alternate Husky and Taurus without changing either seller order', () => {
   const item = (id, seller) => ({ id, sellers: [seller] });
   const mixed = matcher.mixBySeller([
@@ -84,6 +92,7 @@ test('the product screen keeps the listing cover and makes every gallery photo e
   assert.match(html, /image:o\.image\|\|item\.image/);
   assert.match(html, /data-view-photo/);
   assert.doesNotMatch(html, /\.slice\(0,20\)\.map\(src=>'<img/);
+  assert.match(html, /product\.brand=correctedBrand\(product\.brand\)/);
 });
 
 function appHarness(failPage, responder, profileState = { data: { profile: 'Lukas', favourites: [] }, index: { profiles: ['Lukas'] }, writes: [] }) {
