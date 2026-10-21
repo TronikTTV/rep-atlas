@@ -47,7 +47,11 @@ test('brand names can be normalised, renamed and merged', () => {
   assert.equal(matcher.canonicalBrand('C.P'), 'C.P. Company');
   assert.equal(matcher.canonicalBrand('CP'), 'C.P. Company');
   assert.equal(matcher.canonicalBrand('CP COMPANY'), 'C.P. Company');
+  assert.equal(matcher.canonicalBrand('PRADA'), 'Prada');
+  assert.equal(matcher.canonicalBrand('Prada'), 'Prada');
   assert.equal(matcher.canonicalBrand('Stone Island', { 'Stone Island': 'Stoney', Stoney: 'Stone Island Official' }), 'Stone Island Official');
+  assert.equal(matcher.canonicalBrand('PRADA', { PRADA: 'Prada' }), 'Prada');
+  assert.equal(matcher.canonicalBrand('Prada', { PRADA: 'Prada' }), 'Prada');
 });
 
 test('catalogue results alternate Husky and Taurus without changing either seller order', () => {

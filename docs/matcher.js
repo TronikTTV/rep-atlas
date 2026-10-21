@@ -39,9 +39,9 @@ function kinds(o){const s=norm(o.title),shirtText=s.replace(/\b(?:t shirts?|tshi
 function kind(o){return kinds(o)[0]}
 function typeLabel(id){return id==='other'?'Other':(typeOptions.find(x=>x[0]===id)||[])[1]||id}
 function canonicalBrand(value,aliases={}){
- const standardise=name=>{const label=String(name||'Other').trim()||'Other',compact=norm(label).replace(/\s+/g,'');return compact==='cp'||compact==='cpcompany'?'C.P. Company':label};
+ const standardise=name=>{const label=String(name||'Other').trim()||'Other',compact=norm(label).replace(/\s+/g,'');if(compact==='cp'||compact==='cpcompany')return 'C.P. Company';if(compact==='prada')return 'Prada';return label};
  let current=standardise(value);const seen=new Set();
- for(let i=0;i<10;i++){const key=Object.keys(aliases||{}).find(from=>norm(from)===norm(current));if(!key||seen.has(norm(key)))break;seen.add(norm(key));const next=standardise(aliases[key]);if(!next||norm(next)===norm(current))break;current=next}
+ for(let i=0;i<10;i++){const key=Object.keys(aliases||{}).find(from=>norm(from)===norm(current));if(!key||seen.has(norm(key)))break;seen.add(norm(key));const next=standardise(aliases[key]);if(!next||next===current)break;current=next}
  return current;
 }
 function codes(o){const text=String(o.title||'').toUpperCase().replace(/[🔥⭐]/g,'');
