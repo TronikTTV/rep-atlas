@@ -42,7 +42,7 @@ test('a response without real product cards fails instead of importing an empty 
   assert.throws(() => parsePage('<h1>Restricted Access</h1>', category + '?page=1', 'Taurus'), /no product cards/);
 });
 
-function appHarness(failPage, responder) {
+function appHarness(failPage, responder, profileState = { data: { profile: 'Lukas', favourites: [] }, writes: [] }) {
   const elements = new Map(), listeners = [], storage = new Map([['rep_atlas_hide_cloud', 'true']]), requested = [];
   function element(id) {
     if (!elements.has(id)) elements.set(id, { id, value: '', textContent: '', innerHTML: '', disabled: false, hidden: false, style: {}, classList: { add() {}, remove() {}, toggle() {} }, addEventListener() {}, querySelectorAll() { return []; }, click() { return this.onclick?.(); } });
@@ -54,8 +54,15 @@ function appHarness(failPage, responder) {
     localStorage: { getItem: k => storage.get(k) ?? null, setItem: (k, v) => storage.set(k, v), removeItem: k => storage.delete(k) },
     document: { getElementById: element, querySelectorAll: () => [], addEventListener: (name, fn) => { if (name === 'click') listeners.push(fn); }, body: { style: {} } },
     window: { RepMatcher: matcher, scrollTo() {} }, confirm: () => true, alert: message => { throw Error(message); },
-    fetch: async raw => {
+    fetch: async (raw, options = {}) => {
       const url = new URL(raw, 'https://rep-atlas-mobile.vercel.app');
+      if (url.hostname === 'mantledb.sh') {
+        if ((options.method || 'GET') === 'POST') {
+          profileState.data = JSON.parse(options.body);
+          profileState.writes.push(profileState.data);
+        }
+        return { ok: true, status: 200, json: async () => profileState.data };
+      }
       if (url.pathname !== '/api/yupoo') return { ok: true, json: async () => ({ categories: [] }) };
       const page = Number(url.searchParams.get('page'));
       requested.push(page);
@@ -66,8 +73,19 @@ function appHarness(failPage, responder) {
   };
   const html = fs.readFileSync(require.resolve('../docs/index.html'), 'utf8');
   vm.runInNewContext(html.match(/<script>\s*([\s\S]*?)<\/script>/)[1], context);
-  return { element, storage, requested, listeners };
+  return { element, storage, requested, listeners, profileState };
 }
+
+test('Lukas profile loads and writes shared favourites without a password', async () => {
+  const profileState = { data: { profile: 'Lukas', favourites: ['remote-favourite'] }, writes: [] };
+  const app = appHarness(null, null, profileState);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(JSON.parse(app.storage.get('rep_atlas_favs_lukas')), ['remote-favourite']);
+  for (const listener of app.listeners) listener({ target: { closest: selector => selector === '[data-fav]' ? { dataset: { fav: 'new-favourite' } } : null } });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(profileState.data.favourites.sort(), ['new-favourite', 'remote-favourite']);
+  assert.match(app.element('profileStatus').textContent, /Lukas is synced/);
+});
 
 test('category selection starts import and saves every page with distinct photos in custom mode', async () => {
   const app = appHarness();
