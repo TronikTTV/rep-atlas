@@ -108,7 +108,7 @@ async function pushSharedFavourites(version=++favWriteVersion){
 function scheduleFavouriteSync(){clearTimeout(favSaveTimer);const version=++favWriteVersion;profileMessage('Saving '+activeProfile+'…');favSaveTimer=setTimeout(()=>pushSharedFavourites(version),250)}
 async function loadProfileFavourites(){
  const profile=activeProfile,local=[...new Set(store(favKey(),store('rep_atlas_favs',[])))],wasSynced=store(syncedKey(),false);profileMessage('Loading '+profile+'…');
- try{const response=await fetch(profileUrl(profile),{cache:'no-store'});if(response.status===404){favs=local;save(favKey(),favs);draw();scheduleFavouriteSync();return}if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();const remote=Array.isArray(data.favourites)?data.favourites:[];favs=wasSynced?remote:[...new Set([...remote,...local])];save(favKey(),favs);save('rep_atlas_favs',favs);save(syncedKey(),true);draw();if(!wasSynced&&local.some(key=>!remote.includes(key)))scheduleFavouriteSync();else profileMessage('✓ '+profile+' is synced · '+favs.length+' saved product'+(favs.length===1?'':'s'))}
+ try{const response=await fetch(profileUrl(profile),{cache:'no-store'});if(response.status===404){favs=local;save(favKey(),favs);draw();scheduleFavouriteSync();return}if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();const remote=Array.isArray(data.favourites)?data.favourites:[];favs=wasSynced?remote:[...new Set([...remote,...local])];save(favKey(),favs);save('rep_atlas_favs',favs);save(syncedKey(),true);draw();scheduleFavouriteSync()}
  catch{favs=local;draw();profileMessage('Using saves on this device · tap Sync saved products to retry')}
 }
 function localOffers(){return store('rep_atlas_imports_v2',[])}
