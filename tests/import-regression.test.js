@@ -43,6 +43,15 @@ test('grouped seller offers combine their clothing types', () => {
   assert.deepEqual(grouped.find(g => g.hero.id === 'two').types, ['caps']);
 });
 
+test('catalogue results alternate Husky and Taurus without changing either seller order', () => {
+  const item = (id, seller) => ({ id, sellers: [seller] });
+  const mixed = matcher.mixBySeller([
+    item('h1', 'Husky'), item('h2', 'Husky'), item('h3', 'Husky'),
+    item('t1', 'Taurus'), item('t2', 'Taurus')
+  ]);
+  assert.deepEqual(mixed.map(product => product.id), ['h1', 't1', 'h2', 't2', 'h3']);
+});
+
 test('gallery selects original product photos and excludes the store avatar', () => {
   const html = `<img src="https://photo.yupoo.com/deateath/avatar/medium.jpg">
     <h1><span class="showalbumheader__gallerytitle">Stussy jacket</span>24</h1>
@@ -57,7 +66,9 @@ test('a response without real product cards fails instead of importing an empty 
   assert.throws(() => parsePage('<h1>Restricted Access</h1>', category + '?page=1', 'Taurus'), /no product cards/);
 });
 
-function appHarness(failPage, responder, profileState = { data: { profile: 'Lukas', favourites: [] }, writes: [] }) {
+function appHarness(failPage, responder, profileState = { data: { profile: 'Lukas', favourites: [] }, index: { profiles: ['Lukas'] }, writes: [] }) {
+  profileState.index ||= { profiles: ['Lukas'] };
+  profileState.writes ||= [];
   const elements = new Map(), listeners = [], storage = new Map([['rep_atlas_hide_cloud', 'true']]), requested = [];
   function element(id) {
     if (!elements.has(id)) elements.set(id, { id, value: '', textContent: '', innerHTML: '', disabled: false, hidden: false, style: {}, classList: { add() {}, remove() {}, toggle() {} }, addEventListener() {}, querySelectorAll() { return []; }, click() { return this.onclick?.(); } });
@@ -72,11 +83,13 @@ function appHarness(failPage, responder, profileState = { data: { profile: 'Luka
     fetch: async (raw, options = {}) => {
       const url = new URL(raw, 'https://rep-atlas-mobile.vercel.app');
       if (url.hostname === 'mantledb.sh') {
+        const isIndex = url.pathname.endsWith('/profiles/index');
         if ((options.method || 'GET') === 'POST') {
-          profileState.data = JSON.parse(options.body);
-          profileState.writes.push(profileState.data);
+          if (isIndex) profileState.index = JSON.parse(options.body);
+          else profileState.data = JSON.parse(options.body);
+          profileState.writes.push(isIndex ? profileState.index : profileState.data);
         }
-        return { ok: true, status: 200, json: async () => profileState.data };
+        return { ok: true, status: 200, json: async () => isIndex ? profileState.index : profileState.data };
       }
       if (url.pathname !== '/api/yupoo') return { ok: true, json: async () => ({ categories: [] }) };
       const page = Number(url.searchParams.get('page'));
@@ -100,6 +113,18 @@ test('Lukas profile loads and writes shared favourites without a password', asyn
   await new Promise(resolve => setImmediate(resolve));
   assert.deepEqual(profileState.data.favourites.sort(), ['new-favourite', 'remote-favourite']);
   assert.match(app.element('profileStatus').textContent, /Lukas is synced/);
+});
+
+test('a mate can add a separate profile without replacing Lukas saved products', async () => {
+  const profileState = { data: { profile: 'Lukas', favourites: ['lukas-saved'] }, index: { profiles: ['Lukas'] }, writes: [] };
+  const app = appHarness(null, null, profileState);
+  await new Promise(resolve => setImmediate(resolve));
+  app.element('newProfile').value = 'Jamie';
+  await app.element('addProfile').onclick();
+  assert.deepEqual(profileState.index.profiles, ['Lukas', 'Jamie']);
+  assert.equal(JSON.parse(app.storage.get('rep_atlas_profile')), 'Jamie');
+  assert.ok(profileState.writes.some(write => write.profiles?.includes('Jamie')));
+  assert.ok(profileState.writes.some(write => write.profile === 'Lukas' && write.favourites.includes('lukas-saved')));
 });
 
 test('category selection starts import and saves every page with distinct photos in custom mode', async () => {

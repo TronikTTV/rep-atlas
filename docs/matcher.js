@@ -95,5 +95,18 @@ function possibleMatches(selected,groups){
    .filter(x=>x.score>=.55).sort((a,b)=>b.score-a.score).slice(0,5);
  return cand;
 }
-return {group,exactKey,kind,kinds,typeLabel,typeOptions:typeOptions.map(([id,label])=>({id,label})),codes,similarity,possibleMatches};
+function mixBySeller(items){
+ const buckets=new Map();
+ for(const item of items||[]){
+  const sellers=(item.sellers||[]).map(s=>String(s).toLowerCase());
+  const key=sellers.includes('husky')&&sellers.includes('taurus')?'Both':sellers.includes('husky')?'Husky':sellers.includes('taurus')?'Taurus':String((item.sellers||[])[0]||'Other');
+  if(!buckets.has(key))buckets.set(key,[]);
+  buckets.get(key).push(item);
+ }
+ const preferred=['Husky','Taurus','Both'],order=[...preferred,...[...buckets.keys()].filter(key=>!preferred.includes(key))].filter(key=>buckets.has(key));
+ const mixed=[];let found=true;
+ while(found){found=false;for(const key of order){const item=buckets.get(key).shift();if(item){mixed.push(item);found=true}}}
+ return mixed;
+}
+return {group,exactKey,kind,kinds,typeLabel,typeOptions:typeOptions.map(([id,label])=>({id,label})),codes,similarity,possibleMatches,mixBySeller};
 });
