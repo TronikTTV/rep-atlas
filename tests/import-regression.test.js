@@ -66,6 +66,15 @@ test('a response without real product cards fails instead of importing an empty 
   assert.throws(() => parsePage('<h1>Restricted Access</h1>', category + '?page=1', 'Taurus'), /no product cards/);
 });
 
+test('the product screen keeps the listing cover and makes every gallery photo expandable', () => {
+  const html = fs.readFileSync(require.resolve('../docs/index.html'), 'utf8');
+  assert.match(html, /function firstImg\(o\)\{return o\.image\|\|o\.thumbnail\|\|\(o\.images\|\|\[\]\)\[0\]/);
+  assert.match(html, /image:original\.image\|\|detail\.image/);
+  assert.match(html, /image:o\.image\|\|item\.image/);
+  assert.match(html, /data-view-photo/);
+  assert.doesNotMatch(html, /\.slice\(0,20\)\.map\(src=>'<img/);
+});
+
 function appHarness(failPage, responder, profileState = { data: { profile: 'Lukas', favourites: [] }, index: { profiles: ['Lukas'] }, writes: [] }) {
   profileState.index ||= { profiles: ['Lukas'] };
   profileState.writes ||= [];
