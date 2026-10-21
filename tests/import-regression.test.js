@@ -28,6 +28,21 @@ test('each album keeps its own title, cover and visible card', () => {
   assert.ok(result.products.every(p => p.image.endsWith('/medium.jpg')));
 });
 
+test('product names receive every matching clothing type', () => {
+  assert.deepEqual(matcher.kinds({ title: 'Moncler cap, hoodie and shorts matching set' }), ['caps', 'hoodies', 'shorts', 'sets']);
+  assert.deepEqual(matcher.kinds({ title: 'Nike Air Max 95 trainers with socks' }), ['shoes', 'socks']);
+  assert.deepEqual(matcher.kinds({ title: 'Prada T-shirt' }), ['tshirts']);
+});
+
+test('grouped seller offers combine their clothing types', () => {
+  const grouped = matcher.group([
+    { id: 'one', title: 'Hoodie and joggers set', brand: 'Essentials', seller: 'Husky', preserve_listing: true },
+    { id: 'two', title: 'Cap', brand: 'Essentials', seller: 'Taurus', preserve_listing: true }
+  ]);
+  assert.deepEqual(grouped.find(g => g.hero.id === 'one').types, ['hoodies', 'pants', 'sets']);
+  assert.deepEqual(grouped.find(g => g.hero.id === 'two').types, ['caps']);
+});
+
 test('gallery selects original product photos and excludes the store avatar', () => {
   const html = `<img src="https://photo.yupoo.com/deateath/avatar/medium.jpg">
     <h1><span class="showalbumheader__gallerytitle">Stussy jacket</span>24</h1>

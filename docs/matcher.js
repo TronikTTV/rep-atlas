@@ -5,19 +5,26 @@
 'use strict';
 const stop=new Set(('husky taurus reps seller shop yupoo photo model size sizes sizing fit im iwear wearing height weight 180cm 185cm 170cm 175cm xxl xxxl xxlarge xs 68kg 90kg 80kg one new hot sale best 2023 2024 2025 2026 100 top pants topwear photos premium brand clothing fashion original').split(' '));
 const colours=['black grey pink','grey pink','navy blue','light grey','dark grey','off white','olive green','baby blue','black','white','grey','gray','navy','blue','pink','red','green','yellow','orange','purple','brown','beige','cream','olive','khaki','silver','gold'];
-const types=[
- ['jacket',/\b(jacket|coat|nuptse|puffer|down jacket|zip up coat|windbreaker|anorak)\b/],
- ['hoodie',/\b(hoodie|hooded|sweatshirt)\b/],
- ['trousers',/\b(trousers|pants|joggers|sweatpants|tracksuit bottoms)\b/],
- ['tshirt',/\b(t shirt|tshirt|t-shirt|tee)\b/],
- ['shoes',/\b(sneakers|shoes|trainer|air max|dunk|jordans|air jordan)\b/],
- ['shirt',/\b(shirt|polo)\b/],
- ['shorts',/\bshorts\b/],
- ['sweater',/\b(sweater|knitwear|pullover|jumper)\b/],
- ['bag',/\b(backpack|handbag|bag|tote|crossbody)\b/],
- ['tracksuit',/\b(tracksuit|suit|set)\b/],
- ['hat',/\b(cap|hat|beanie)\b/],
- ['other',/.*/]
+const typeOptions=[
+ ['caps','Caps & hats',/\b(?:caps?|hats?|beanies?|bucket hats?|trucker caps?|balaclavas?)\b/],
+ ['tshirts','T-shirts & jerseys',/\b(?:t shirts?|tshirts?|tees?|jerseys?)\b/],
+ ['hoodies','Hoodies',/\b(?:hoodies?|hooded)\b/],
+ ['sweatshirts','Sweatshirts',/\b(?:sweatshirts?|crewnecks?)\b/],
+ ['shirts','Shirts & polos',/\b(?:shirts?|polos?|overshirts?|button up|dress shirts?)\b/],
+ ['knitwear','Jumpers & knitwear',/\b(?:sweaters?|jumpers?|knitwear|knits?|cardigans?|pullovers?)\b/],
+ ['jackets','Jackets & coats',/\b(?:jackets?|coats?|nuptse|puffers?|parkas?|gilets?|bombers?|windbreakers?|anoraks?)\b/],
+ ['pants','Pants & trousers',/\b(?:pants|trousers|joggers?|jeans|denim|cargos?|sweatpants|leggings|tracksuit bottoms?)\b/],
+ ['shorts','Shorts',/\bshorts?\b/],
+ ['tracksuits','Tracksuits',/\b(?:tracksuits?|track suits?)\b/],
+ ['sets','Matching sets',/\b(?:sets?|two piece|2 piece)\b/],
+ ['suits','Suits & blazers',/\b(?:suits?|blazers?)\b/],
+ ['shoes','Shoes',/\b(?:shoes?|sneakers?|trainers?|boots?|loafers?|sandals?|slides?|sliders?|slippers?|air max|air force|dunks?|jordans?|air jordan|yeezy)\b/],
+ ['bags','Bags',/\b(?:bags?|backpacks?|rucksacks?|handbags?|totes?|crossbody|pouches?|holdalls?)\b/],
+ ['underwear','Underwear',/\b(?:underwear|boxers?|briefs?)\b/],
+ ['socks','Socks',/\bsocks?\b/],
+ ['dresses','Dresses & skirts',/\b(?:dresses?|skirts?)\b/],
+ ['swimwear','Swimwear',/\b(?:swimwear|swimsuits?|swim shorts?|bikinis?)\b/],
+ ['accessories','Accessories',/\b(?:belts?|wallets?|scarves?|gloves?|sunglasses|glasses|bracelets?|necklaces?|rings?|watches?|ties|keychains?|phone cases?)\b/]
 ];
 const norm=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[🔥⭐★✴️]/g,' ').replace(/[^\p{L}\p{N}]+/gu,' ').replace(/\s+/g,' ').trim();
 function brandOf(o){const brand=norm(o.brand);return ['other','unknown','husky 1 1','1 1','taurus',''].includes(brand)?'':brand}
@@ -28,7 +35,9 @@ function core(o){
  for(const c of colours)text=text.replace(new RegExp('(?:^| )'+c+'(?= |$)','g'),' ');
  return text.replace(/\b(?:\d{2,5})\b/g,' ').replace(/\s+/g,' ').trim();
 }
-function kind(o){const s=norm(o.title);for(const [t,re] of types)if(re.test(s))return t;return 'other'}
+function kinds(o){const s=norm(o.title),shirtText=s.replace(/\b(?:t shirts?|tshirts?)\b/g,' ');const found=[];for(const [id,,re] of typeOptions){if(id==='shirts'?re.test(shirtText):re.test(s))found.push(id)}return found.length?found:['other']}
+function kind(o){return kinds(o)[0]}
+function typeLabel(id){return id==='other'?'Other':(typeOptions.find(x=>x[0]===id)||[])[1]||id}
 function codes(o){const text=String(o.title||'').toUpperCase().replace(/[🔥⭐]/g,'');
  const found=[...text.matchAll(/\b([A-Z]{1,5}\d{3,6})(?:[-\s](\d{2,4}))?\b/g)].map(m=>m[1]);
  return [...new Set(found)].filter(x=>x.length<9&&!/^(?:CM|KG|SKU)\d+/.test(x));
@@ -74,6 +83,7 @@ function group(offers,edits={}){
   g.hero=best;g.brand=best.brand||'Other';g.title=best.title||'Untitled album';
   g.sellers=[...new Set(g.offers.map(o=>o.seller))];
   g.colors=[...new Set(g.offers.map(o=>(o.color||'Unknown').trim()))];
+  g.types=[...new Set(g.offers.flatMap(kinds))];
   return g;
  }).sort((a,b)=>a.title.localeCompare(b.title));
 }
@@ -85,5 +95,5 @@ function possibleMatches(selected,groups){
    .filter(x=>x.score>=.55).sort((a,b)=>b.score-a.score).slice(0,5);
  return cand;
 }
-return {group,exactKey,kind,codes,similarity,possibleMatches};
+return {group,exactKey,kind,kinds,typeLabel,typeOptions:typeOptions.map(([id,label])=>({id,label})),codes,similarity,possibleMatches};
 });
