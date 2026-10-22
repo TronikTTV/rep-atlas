@@ -49,6 +49,8 @@ test('brand names can be normalised, renamed and merged', () => {
   assert.equal(matcher.canonicalBrand('CP COMPANY'), 'C.P. Company');
   assert.equal(matcher.canonicalBrand('PRADA'), 'Prada');
   assert.equal(matcher.canonicalBrand('Prada'), 'Prada');
+  assert.equal(matcher.canonicalBrand('P🔥A🔥A'), 'Prada');
+  assert.equal(matcher.canonicalBrand('P⭐A⭐A'), 'Prada');
   assert.equal(matcher.canonicalBrand('Stone Island', { 'Stone Island': 'Stoney', Stoney: 'Stone Island Official' }), 'Stone Island Official');
   assert.equal(matcher.canonicalBrand('PRADA', { PRADA: 'Prada' }), 'Prada');
   assert.equal(matcher.canonicalBrand('Prada', { PRADA: 'Prada' }), 'Prada');
@@ -93,6 +95,7 @@ test('the product screen keeps the listing cover and makes every gallery photo e
   assert.match(html, /data-view-photo/);
   assert.doesNotMatch(html, /\.slice\(0,20\)\.map\(src=>'<img/);
   assert.match(html, /product\.brand=correctedBrand\(product\.brand\)/);
+  assert.match(html, /matcher\.js\?v=7/);
 });
 
 function appHarness(failPage, responder, profileState = { data: { profile: 'Lukas', favourites: [] }, index: { profiles: ['Lukas'] }, writes: [] }) {
