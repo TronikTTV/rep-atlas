@@ -1,6 +1,5 @@
-/* REP ATLAS matcher v2. Conservative grouping: exact model codes or strong title overlap.
-   Deliberately does NOT assume similar colourways or same brand are the same product.
-   Seller offers keep their original listing title, price, URL and photo gallery. */
+/* REP ATLAS matcher v3. Conservative grouping using model codes, strong titles and
+   photo fingerprints. Seller offers keep their own title, price, URL and gallery. */
 (function(root,factory){const api=factory();if(typeof module!=='undefined'&&module.exports)module.exports=api;root.RepMatcher=api;})(typeof window!=='undefined'?window:globalThis,function(){
 'use strict';
 const stop=new Set(('husky taurus reps seller shop yupoo photo model size sizes sizing fit im iwear wearing height weight 180cm 185cm 170cm 175cm xxl xxxl xxlarge xs 68kg 90kg 80kg one new hot sale best 2023 2024 2025 2026 100 top pants topwear photos premium brand clothing fashion original').split(' '));
@@ -59,6 +58,25 @@ function similarity(a,b){
  if(shared<2)return 0;
  return overlap(wa,wb);
 }
+const bitCount=[0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4];
+function hashSimilarity(a,b){
+ a=String(a||'');b=String(b||'');if(!a||a.length!==b.length)return 0;
+ let different=0;for(let i=0;i<a.length;i++){const x=parseInt(a[i],16),y=parseInt(b[i],16);if(!Number.isFinite(x)||!Number.isFinite(y))return 0;different+=bitCount[x^y]}
+ return 1-different/(a.length*4);
+}
+function visualSimilarity(a,b){
+ const x=String(a?.visual_hash||'').split(':'),y=String(b?.visual_hash||'').split(':');
+ if(x.length!==3||y.length!==3||x[0]!=='v1'||y[0]!=='v1')return {average:0,shape:0,detail:0};
+ const shape=hashSimilarity(x[1],y[1]),detail=hashSimilarity(x[2],y[2]);
+ return {shape,detail,average:(shape+detail)/2};
+}
+function samePricedVisual(a,b){
+ if(!sameBrand(a,b)||String(a.seller||'').toLowerCase()===String(b.seller||'').toLowerCase())return false;
+ const ka=kind(a),kb=kind(b),pa=Number(a.price_yuan),pb=Number(b.price_yuan);
+ if(ka==='other'||ka!==kb||!Number.isFinite(pa)||!Number.isFinite(pb)||Math.round(pa)!==Math.round(pb))return false;
+ const shared=words(a).filter(word=>words(b).includes(word));if(!shared.length)return false;
+ const score=visualSimilarity(a,b);return score.shape>=.89&&score.detail>=.74;
+}
 function exactKey(o){
  if(o.preserve_listing)return 'listing:'+o.id;
  const brand=brandOf({brand:o.brand_key||o.brand}),k=kind(o),c=codes(o);
@@ -75,15 +93,27 @@ function group(offers,edits={}){
  const groups=new Map();
  for(const o of data){const key=edits[o.id]||exactKey(o);if(!groups.has(key))groups.set(key,{key,offers:[]});groups.get(key).offers.push(o)}
  // Merge high-confidence near-identical descriptions from different sellers.
- const arr=[...groups.values()];
- if(arr.length<=3000)for(let i=0;i<arr.length;i++){const a=arr[i];if(a.merged||!a.offers.length)continue;
-  for(let j=i+1;j<arr.length;j++){const b=arr[j];if(b.merged||!b.offers.length)continue;
-    if(a.offers.some(x=>b.offers.some(y=>!x.preserve_listing && !y.preserve_listing && x.seller!==y.seller && similarity(x,y)>=.96 && words(x).length>=5 && words(y).length>=5))){
-      a.offers.push(...b.offers);b.merged=true;
-    }
-  }
+ const arr=[...groups.values()],parent=arr.map((_,i)=>i);
+ const find=i=>parent[i]===i?i:(parent[i]=find(parent[i]));
+ const unite=(a,b)=>{a=find(a);b=find(b);if(a!==b)parent[b]=a};
+ // Strong title matches stay supported for smaller catalogues.
+ if(arr.length<=3000)for(let i=0;i<arr.length;i++)for(let j=i+1;j<arr.length;j++){
+  const a=arr[i],b=arr[j];
+  if(a.offers.some(x=>b.offers.some(y=>!x.preserve_listing&&!y.preserve_listing&&x.seller!==y.seller&&similarity(x,y)>=.96&&words(x).length>=5&&words(y).length>=5)))unite(i,j);
  }
- return arr.filter(x=>!x.merged).map(g=>{
+ // Photo matching is bucketed by brand, clothing type and exact price, so it stays
+ // fast even with thousands of listings and does not compare unrelated products.
+ const visualBuckets=new Map();
+ for(let i=0;i<arr.length;i++)for(const offer of arr[i].offers){
+  const brand=brandOf(offer),productKind=kind(offer),price=Number(offer.price_yuan);
+  if(!brand||productKind==='other'||!offer.visual_hash||!Number.isFinite(price))continue;
+  const key=brand+'|'+productKind+'|'+Math.round(price);if(!visualBuckets.has(key))visualBuckets.set(key,[]);visualBuckets.get(key).push({i,offer});
+ }
+ for(const bucket of visualBuckets.values())for(let a=0;a<bucket.length;a++)for(let b=a+1;b<bucket.length;b++)if(bucket[a].i!==bucket[b].i&&samePricedVisual(bucket[a].offer,bucket[b].offer))unite(bucket[a].i,bucket[b].i);
+ const combined=new Map();
+ for(let i=0;i<arr.length;i++){const root=find(i),source=arr[i];if(!combined.has(root))combined.set(root,{key:arr[root].key,offers:[],memberKeys:[]});const target=combined.get(root);target.offers.push(...source.offers);target.memberKeys.push(source.key,...(source.memberKeys||[]))}
+ return [...combined.values()].map(g=>{
+  g.memberKeys=[...new Set([g.key,...g.memberKeys])];
   g.offers.sort((a,b)=>(a.price_yuan==null?Infinity:Number(a.price_yuan))-(b.price_yuan==null?Infinity:Number(b.price_yuan)));
   const best=g.offers.find(o=>o.image||(o.images||[]).length)||g.offers[0];
   g.hero=best;g.brand=best.brand||'Other';g.title=best.title||'Untitled album';
@@ -97,8 +127,8 @@ function possibleMatches(selected,groups){
  if(!selected||selected.sellers.length>1)return [];
  const selectedBrand=norm(selected.brand),selectedKind=kind(selected.hero);
  const cand=groups.filter(g=>g!==selected&&norm(g.brand)===selectedBrand&&kind(g.hero)===selectedKind&&g.sellers.some(s=>!selected.sellers.includes(s)))
-   .map(g=>({group:g,score:Math.max(...selected.offers.flatMap(a=>g.offers.map(b=>similarity(a,b))))}))
-   .filter(x=>x.score>=.55).sort((a,b)=>b.score-a.score).slice(0,5);
+   .map(g=>({group:g,score:Math.max(...selected.offers.flatMap(a=>g.offers.map(b=>Math.max(similarity(a,b),visualSimilarity(a,b).average))))}))
+   .filter(x=>x.score>=.45||Number(x.group.hero.price_yuan)===Number(selected.hero.price_yuan)).sort((a,b)=>b.score-a.score).slice(0,8);
  return cand;
 }
 function mixBySeller(items){
@@ -114,5 +144,5 @@ function mixBySeller(items){
  while(found){found=false;for(const key of order){const item=buckets.get(key).shift();if(item){mixed.push(item);found=true}}}
  return mixed;
 }
-return {group,exactKey,kind,kinds,typeLabel,typeOptions:typeOptions.map(([id,label])=>({id,label})),codes,similarity,possibleMatches,mixBySeller,canonicalBrand};
+return {group,exactKey,kind,kinds,typeLabel,typeOptions:typeOptions.map(([id,label])=>({id,label})),codes,similarity,visualSimilarity,possibleMatches,mixBySeller,canonicalBrand};
 });

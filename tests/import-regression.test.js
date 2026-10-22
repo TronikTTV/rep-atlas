@@ -73,6 +73,28 @@ test('catalogue results alternate Husky and Taurus without changing either selle
   assert.deepEqual(mixed.map(product => product.id), ['h1', 't1', 'h2', 't2', 'h3']);
 });
 
+test('matching cover fingerprints combine differently named Husky and Taurus listings', () => {
+  const visualHash = `v1:${'f'.repeat(64)}:${'a'.repeat(16)}`;
+  const grouped = matcher.group([
+    { id: 'husky-prada', title: '¥115 P🔥A🔥A T-SHIRT 55041674', brand: 'Prada', seller: 'Husky', price_yuan: 115, visual_hash: visualHash, preserve_listing: true },
+    { id: 'taurus-prada', title: '¥115 P⭐A⭐A T-SHIRT 524040219', brand: 'Prada', seller: 'Taurus', price_yuan: 115, visual_hash: visualHash, preserve_listing: true }
+  ]);
+  assert.equal(grouped.length, 1);
+  assert.deepEqual(grouped[0].sellers, ['Husky', 'Taurus']);
+  assert.equal(grouped[0].offers.length, 2);
+  assert.equal(grouped[0].memberKeys.length, 2);
+});
+
+test('photo matching does not combine different prices or the same seller', () => {
+  const visualHash = `v1:${'f'.repeat(64)}:${'a'.repeat(16)}`;
+  const grouped = matcher.group([
+    { id: 'one', title: 'Prada T-shirt 111111', brand: 'Prada', seller: 'Husky', price_yuan: 115, visual_hash: visualHash, preserve_listing: true },
+    { id: 'two', title: 'Prada T-shirt 222222', brand: 'Prada', seller: 'Taurus', price_yuan: 129, visual_hash: visualHash, preserve_listing: true },
+    { id: 'three', title: 'Prada T-shirt 333333', brand: 'Prada', seller: 'Husky', price_yuan: 115, visual_hash: visualHash, preserve_listing: true }
+  ]);
+  assert.equal(grouped.length, 3);
+});
+
 test('gallery selects original product photos and excludes the store avatar', () => {
   const html = `<img src="https://photo.yupoo.com/deateath/avatar/medium.jpg">
     <h1><span class="showalbumheader__gallerytitle">Stussy jacket</span>24</h1>
@@ -95,7 +117,11 @@ test('the product screen keeps the listing cover and makes every gallery photo e
   assert.match(html, /data-view-photo/);
   assert.doesNotMatch(html, /\.slice\(0,20\)\.map\(src=>'<img/);
   assert.match(html, /product\.brand=correctedBrand\(product\.brand\)/);
-  assert.match(html, /matcher\.js\?v=7/);
+  assert.match(html, /matcher\.js\?v=8/);
+  assert.match(html, /data-fingerprint-id/);
+  assert.match(html, /g\.sellers\.length>1\?g\.sellers\.length\+' sellers'/);
+  assert.match(html, /data-offer-seller/);
+  assert.match(html, /Combine as same product/);
 });
 
 function appHarness(failPage, responder, profileState = { data: { profile: 'Lukas', favourites: [] }, index: { profiles: ['Lukas'] }, writes: [] }) {
