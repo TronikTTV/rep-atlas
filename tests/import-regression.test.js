@@ -128,7 +128,7 @@ test('the product screen keeps the listing cover and makes every gallery photo e
   assert.match(html, /data-view-photo/);
   assert.doesNotMatch(html, /\.slice\(0,20\)\.map\(src=>'<img/);
   assert.match(html, /product\.brand=correctedBrand\(product\.brand\)/);
-  assert.match(html, /matcher\.js\?v=8/);
+  assert.match(html, /matcher\.js\?v=9/);
   assert.match(html, /data-fingerprint-id/);
   assert.match(html, /g\.sellers\.length>1\?g\.sellers\.length\+' sellers'/);
   assert.match(html, /data-offer-seller/);
