@@ -70,12 +70,12 @@ function visualSimilarity(a,b){
  const shape=hashSimilarity(x[1],y[1]),detail=hashSimilarity(x[2],y[2]);
  return {shape,detail,average:(shape+detail)/2};
 }
-function samePricedVisual(a,b){
+function matchingVisual(a,b){
  if(!sameBrand(a,b)||String(a.seller||'').toLowerCase()===String(b.seller||'').toLowerCase())return false;
  const ka=kind(a),kb=kind(b),pa=Number(a.price_yuan),pb=Number(b.price_yuan);
- if(ka==='other'||ka!==kb||!Number.isFinite(pa)||!Number.isFinite(pb)||Math.round(pa)!==Math.round(pb))return false;
+ if(ka==='other'||ka!==kb||!Number.isFinite(pa)||!Number.isFinite(pb)||Math.max(pa,pb)/Math.max(1,Math.min(pa,pb))>1.2)return false;
  const shared=words(a).filter(word=>words(b).includes(word));if(!shared.length)return false;
- const score=visualSimilarity(a,b);return score.shape>=.89&&score.detail>=.74;
+ const score=visualSimilarity(a,b),samePrice=Math.round(pa)===Math.round(pb);return samePrice?score.shape>=.89&&score.detail>=.74:score.shape>=.94&&score.detail>=.82;
 }
 function exactKey(o){
  if(o.preserve_listing)return 'listing:'+o.id;
@@ -107,9 +107,9 @@ function group(offers,edits={}){
  for(let i=0;i<arr.length;i++)for(const offer of arr[i].offers){
   const brand=brandOf(offer),productKind=kind(offer),price=Number(offer.price_yuan);
   if(!brand||productKind==='other'||!offer.visual_hash||!Number.isFinite(price))continue;
-  const key=brand+'|'+productKind+'|'+Math.round(price);if(!visualBuckets.has(key))visualBuckets.set(key,[]);visualBuckets.get(key).push({i,offer});
+  const base=brand+'|'+productKind,band=Math.floor(price/25);if(!visualBuckets.has(base))visualBuckets.set(base,new Map());const bands=visualBuckets.get(base);if(!bands.has(band))bands.set(band,[]);bands.get(band).push({i,offer});
  }
- for(const bucket of visualBuckets.values())for(let a=0;a<bucket.length;a++)for(let b=a+1;b<bucket.length;b++)if(bucket[a].i!==bucket[b].i&&samePricedVisual(bucket[a].offer,bucket[b].offer))unite(bucket[a].i,bucket[b].i);
+ for(const bands of visualBuckets.values())for(const [band,bucket] of bands){const nearby=[...bucket,...(bands.get(band+1)||[])];for(let a=0;a<bucket.length;a++)for(let b=a+1;b<nearby.length;b++)if(bucket[a].i!==nearby[b].i&&matchingVisual(bucket[a].offer,nearby[b].offer))unite(bucket[a].i,nearby[b].i)}
  const combined=new Map();
  for(let i=0;i<arr.length;i++){const root=find(i),source=arr[i];if(!combined.has(root))combined.set(root,{key:arr[root].key,offers:[],memberKeys:[]});const target=combined.get(root);target.offers.push(...source.offers);target.memberKeys.push(source.key,...(source.memberKeys||[]))}
  return [...combined.values()].map(g=>{

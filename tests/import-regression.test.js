@@ -87,12 +87,23 @@ test('matching cover fingerprints combine differently named Husky and Taurus lis
 
 test('photo matching does not combine different prices or the same seller', () => {
   const visualHash = `v1:${'f'.repeat(64)}:${'a'.repeat(16)}`;
+  const differentPhoto = `v1:${'0'.repeat(64)}:${'5'.repeat(16)}`;
   const grouped = matcher.group([
     { id: 'one', title: 'Prada T-shirt 111111', brand: 'Prada', seller: 'Husky', price_yuan: 115, visual_hash: visualHash, preserve_listing: true },
-    { id: 'two', title: 'Prada T-shirt 222222', brand: 'Prada', seller: 'Taurus', price_yuan: 129, visual_hash: visualHash, preserve_listing: true },
+    { id: 'two', title: 'Prada T-shirt 222222', brand: 'Prada', seller: 'Taurus', price_yuan: 129, visual_hash: differentPhoto, preserve_listing: true },
     { id: 'three', title: 'Prada T-shirt 333333', brand: 'Prada', seller: 'Husky', price_yuan: 115, visual_hash: visualHash, preserve_listing: true }
   ]);
   assert.equal(grouped.length, 3);
+});
+
+test('a very strong photo match can combine slightly different seller prices', () => {
+  const visualHash = `v1:${'f'.repeat(64)}:${'a'.repeat(16)}`;
+  const grouped = matcher.group([
+    { id: 'husky', title: 'Prada T-shirt 111111', brand: 'Prada', seller: 'Husky', price_yuan: 115, visual_hash: visualHash, preserve_listing: true },
+    { id: 'taurus', title: 'Prada T-shirt 222222', brand: 'Prada', seller: 'Taurus', price_yuan: 125, visual_hash: visualHash, preserve_listing: true }
+  ]);
+  assert.equal(grouped.length, 1);
+  assert.equal(grouped[0].sellers.length, 2);
 });
 
 test('gallery selects original product photos and excludes the store avatar', () => {
