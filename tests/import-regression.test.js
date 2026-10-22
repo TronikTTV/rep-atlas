@@ -85,6 +85,12 @@ test('matching cover fingerprints combine differently named Husky and Taurus lis
   assert.equal(grouped[0].memberKeys.length, 2);
 });
 
+test('completed photo fingerprints do not redraw the whole catalogue unless grouping changes', () => {
+  const appHtml = fs.readFileSync(require.resolve('../docs/index.html'), 'utf8');
+  assert.match(appHtml, /const before=groups\.length;reindex\(\);if\(groups\.length!==before\)draw\(\)/);
+  assert.doesNotMatch(appHtml, /persistDetails\(\)\}catch\{\}reindex\(\);draw\(\)/);
+});
+
 test('photo matching does not combine different prices or the same seller', () => {
   const visualHash = `v1:${'f'.repeat(64)}:${'a'.repeat(16)}`;
   const differentPhoto = `v1:${'0'.repeat(64)}:${'5'.repeat(16)}`;
